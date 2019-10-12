@@ -1,0 +1,7 @@
+# Build directories
+/dist
+/pkg
+
+/node_modules
+
+/yarn-error.log

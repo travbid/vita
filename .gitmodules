@@ -1,0 +1,3 @@
+[submodule "vita-wasm"]
+	path = vita-wasm
+	url = git@gitlab.com:travbid/vita-wasm.git
