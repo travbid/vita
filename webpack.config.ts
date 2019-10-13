@@ -2,7 +2,6 @@
 import path from "path";
 import webpack from 'webpack';
 
-// import TerserJSPlugin from "terser-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import OptimizeCSSAssetsPlugin from "optimize-css-assets-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
@@ -56,27 +55,10 @@ const config_css: webpack.Configuration = {
 
 const config_js: webpack.Configuration = {
 	optimization: {
+		// runtimeChunk: true,
+		mangleWasmImports: true,
 		// minimize: false,
-		// minimizer: [
-		// 	new TerserJSPlugin({
-		// 	terserOptions: {
-		// 		// ecma: undefined,
-		// 		// warnings: false,
-		// 		// parse: {},
-		// 		// compress: {},
-		// 		mangle: true, // Note `mangle.properties` is `false` by default.
-		// 		module: false,
-		// 		// output: null,
-		// 		// toplevel: false,
-		// 		// nameCache: null,
-		// 		// ie8: false,
-		// 		// keep_classnames: undefined,
-		// 		// keep_fnames: false,
-		// 		// safari10: false,
-		// 	 },
-		// 	}),
-		// ],
-		usedExports: true,
+		// usedExports: true,
 	},
 	mode: mode,
 	entry: {
@@ -100,19 +82,19 @@ const config_js: webpack.Configuration = {
 			use: [{
 				loader: 'ts-loader',
 				options: {
-					// configFile: 'tsconfig.asrc.json'
+					// configFile: 'tsconfig.json'
 				}
 			}],
 			exclude: /node_modules/
 		}]
 	},
-	// resolve: {
-	// 	extensions: [".ts"]
-	// },
 };
 
 const config_html: webpack.Configuration = {
 	mode: mode,
+	optimization: {
+		// minimizer: [new OptimizeHTMLPlugin({})],
+	},
 	entry: {
 		index: './src/html.js',
 	},
