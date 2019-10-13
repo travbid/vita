@@ -26,10 +26,10 @@
 	<meta name="msapplication-TileColor" content="#465e69" />
 </head>
 
-<body>
+<body onresize="index.resizeCanvas();">
 
-	<canvas id="gl_canvas" width="800" height="450"></canvas>
-	<button type="button" id="btn" onclick="index.togglePlay()">Play / Pause</button>
+	<canvas id="gl_canvas" width="100" height="50" onclick="index.togglePlay()"></canvas>
+	<button id="btn" type="button" onclick="index.togglePlay()">Play / Pause</button>
 	<script src="bundle.js"></script>
 
 </body>
