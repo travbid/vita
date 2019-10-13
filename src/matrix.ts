@@ -88,8 +88,8 @@ export class mat4 {
 		this.m[3][3] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
 	}
 	perspective(fov: number, aspect: number, near: number, far: number) {
-		const w = near * Math.tan(fov);
-		const h = w / aspect;
+		const h = 2 * near * Math.tan(fov);
+		const w = h * aspect;
 		this.m = [
 			[near / w, 0, 0, 0],
 			[0, near / h, 0, 0],
