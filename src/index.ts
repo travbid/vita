@@ -34,7 +34,7 @@ class Scene {
 	public programInfo: IProgramInfo;
 	public faceBuffers: IBuffer; // | null
 	public edgeBuffers: IBuffer; // | null
-	constructor (gl: WebGLRenderingContext, programInfo: IProgramInfo, faceBuffers: IBuffer, edgeBuffers: IBuffer) {
+	constructor(gl: WebGLRenderingContext, programInfo: IProgramInfo, faceBuffers: IBuffer, edgeBuffers: IBuffer) {
 		this.gl = gl;
 		this.programInfo = programInfo;
 		this.faceBuffers = faceBuffers;
@@ -45,7 +45,7 @@ class Scene {
 		const gl = this.gl;
 		const programInfo = this.programInfo;
 		const buffers = this.faceBuffers;
-	
+
 		gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 		gl.clearColor(0.2, 0.2, 0.2, 1.0);  // Clear to grey, fully opaque
 		// gl.colorMask(false, false, false, true);
@@ -53,10 +53,10 @@ class Scene {
 		gl.enable(gl.DEPTH_TEST);           // Enable depth testing
 		gl.enable(gl.BLEND);
 		// gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
-	
+
 		// Clear the canvas before we start drawing on it.
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	
+
 		// Create a perspective matrix, a special matrix that is
 		// used to simulate the distortion of perspective in a camera.
 		// Our field of view is 45 degrees, with a width/height
@@ -70,10 +70,10 @@ class Scene {
 		const zFar = 100.0;
 		const projectionMatrix = new mat4();
 		projectionMatrix.perspective(fov, aspect, zNear, zFar); // mat4.create();
-	
+
 		// Set the drawing position to the "identity" point, which is the center of the scene.
 		const modelViewMatrix = new mat4(); // mat4.create();
-	
+
 		// Tell WebGL how to pull out the positions from the position
 		// buffer into the vertexPosition attribute.
 		{
@@ -92,7 +92,7 @@ class Scene {
 				stride,
 				offset);
 			gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
-	
+
 			// gl.bindBuffer(gl.ARRAY_BUFFER, edgeBuffers.position);
 			// gl.vertexAttribPointer(
 			// 	programInfo.attribLocations.vertexPosition,
@@ -120,7 +120,7 @@ class Scene {
 				stride,
 				offset);
 			gl.enableVertexAttribArray(programInfo.attribLocations.vertexNormal);
-	
+
 			// gl.bindBuffer(gl.ARRAY_BUFFER, edgeBuffers.normal);
 			// gl.vertexAttribPointer(
 			// 	programInfo.attribLocations.vertexNormal,
@@ -146,7 +146,7 @@ class Scene {
 				stride,
 				offset);
 			gl.enableVertexAttribArray(programInfo.attribLocations.vertexColour);
-	
+
 			// gl.bindBuffer(gl.ARRAY_BUFFER, edgeBuffers.colour);
 			// gl.vertexAttribPointer(
 			// 	programInfo.attribLocations.vertexColour,
@@ -157,17 +157,17 @@ class Scene {
 			// 	offset);
 			// gl.enableVertexAttribArray(programInfo.attribLocations.vertexColour);
 		}
-	
+
 		// Tell WebGL which indices to use to index the vertices
 		// In this case, it has already been bound in initBuffers(),
 		// but could changed / swapped
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
-	
+
 		gl.useProgram(programInfo.program); // Tell WebGL to use our program when drawing
-	
+
 		const normalMatrix = modelViewMatrix.clone();
 		normalMatrix.invert();
-	
+
 		// Transpose row-major to column major before setting uniformMatrix4fv()
 		// Set the shader uniforms
 		gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix.transpose());
@@ -193,7 +193,7 @@ class Scene {
 		modelViewMatrix.rotate(rot, [0, 0, 1]);
 		modelViewMatrix.rotate(rot, [0, 1, 0]);
 		gl.uniformMatrix4fv(this.programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix.transpose());
-	
+
 		if (this.faceBuffers === null || this.edgeBuffers === null) {
 			console.log("Buffer === null", this.faceBuffers, this.edgeBuffers);
 			return;
@@ -453,7 +453,7 @@ function setupFaces(scene: Scene) {
 			normalize,
 			stride,
 			offset);
-			gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+		gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
 	}
 	// Tell WebGL how to pull out the normals from
 	// the normal buffer into the vertexNormal attribute.
