@@ -160,8 +160,8 @@ class Scene {
 	public pausedAt: number = 0;
 	public gl: WebGLRenderingContext;
 	public programInfo: ProgramInfo;
-	public faceBuffers: Buffer; // | null
-	public edgeBuffers: Buffer; // | null
+	public faceBuffers: Buffer;
+	public edgeBuffers: Buffer;
 	constructor(gl: WebGLRenderingContext, programInfo: ProgramInfo, faceBuffers: Buffer, edgeBuffers: Buffer) {
 		this.gl = gl;
 		this.programInfo = programInfo;
@@ -293,7 +293,7 @@ class Scene {
 
 		gl.useProgram(programInfo.program); // Tell WebGL to use our program when drawing
 
-		const normalMatrix = modelViewMatrix.clone();
+		const normalMatrix: Mat4 = modelViewMatrix.clone();
 		normalMatrix.invert();
 
 		// Transpose row-major to column major before setting uniformMatrix4fv()
@@ -491,7 +491,6 @@ function initBuffers(gl: WebGLRenderingContext): Buffer | null {
 		console.log("gl.createBuffer() returned null");
 		return null;
 	}
-
 	// Select this as the one to apply buffer operations to
 	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 	// Pass the list of positions into WebGL to build the shape.
@@ -532,12 +531,6 @@ function initBuffers(gl: WebGLRenderingContext): Buffer | null {
 	gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colours), gl.STATIC_DRAW);
 
-	const indexBuffer: WebGLBuffer | null = gl.createBuffer();
-	if (indexBuffer === null) {
-		console.log("gl.createBuffer() returned null");
-		return null;
-	}
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 	// This array defines each face as two triangles, using the indices
 	// into the vertex array to specify each triangle's position.
 	const indices = [
@@ -552,7 +545,12 @@ function initBuffers(gl: WebGLRenderingContext): Buffer | null {
 		4, 5, 5, 6, 6, 7, 7, 4,
 		0, 4, 1, 7, 2, 6, 3, 5
 	];
-
+	const indexBuffer: WebGLBuffer | null = gl.createBuffer();
+	if (indexBuffer === null) {
+		console.log("gl.createBuffer() returned null");
+		return null;
+	}
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 	// Now send the element array to GL
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
