@@ -11,7 +11,7 @@ type ConfMode = "development" | "production" | "none";
 
 const mode: ConfMode = "production";
 
-const config_css: webpack.Configuration = {
+const configCSS: webpack.Configuration = {
 	optimization: {
 		minimizer: [new OptimizeCSSAssetsPlugin({})],
 	},
@@ -53,7 +53,7 @@ const config_css: webpack.Configuration = {
 	}
 };
 
-const config_js: webpack.Configuration = {
+const configJS: webpack.Configuration = {
 	optimization: {
 		// runtimeChunk: true,
 		mangleWasmImports: true,
@@ -90,7 +90,7 @@ const config_js: webpack.Configuration = {
 	},
 };
 
-const config_html: webpack.Configuration = {
+const configHTML: webpack.Configuration = {
 	mode: mode,
 	optimization: {
 		// minimizer: [new OptimizeHTMLPlugin({})],
@@ -110,7 +110,7 @@ const config_html: webpack.Configuration = {
 };
 
 export default [
-	config_css,
-	config_js,
-	config_html
+	configCSS,
+	configJS,
+	configHTML
 ];

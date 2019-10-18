@@ -1,47 +1,175 @@
 // @ts-ignore: An import path cannot end with a '.ts' extension
 import { vsSource, fsSource } from "./shaders.ts";
 // @ts-ignore: An import path cannot end with a '.ts' extension
-import { mat4 } from "./matrix.ts";
+import { Mat4 } from "./matrix.ts";
 // @ts-ignore: An import path cannot end with a '.ts' extension
 import { Cube } from "./shapes.ts"
 
-interface IProgramInfo {
+interface ProgramInfo {
 	program: WebGLProgram;
 	attribLocations: {
-		vertexPosition: number,
-		vertexNormal: number,
-		vertexColour: number,
-	},
+		vertexPosition: number;
+		vertexNormal: number;
+		vertexColour: number;
+	};
 	uniformLocations: {
-		projectionMatrix: WebGLUniformLocation | null,
-		normalMatrix: WebGLUniformLocation | null,
-		modelViewMatrix: WebGLUniformLocation | null,
-	}
+		projectionMatrix: WebGLUniformLocation | null;
+		normalMatrix: WebGLUniformLocation | null;
+		modelViewMatrix: WebGLUniformLocation | null;
+	};
 }
 
-interface IBuffer {
-	position: WebGLBuffer,
-	normal: WebGLBuffer,
-	colour: WebGLBuffer,
-	indices: WebGLBuffer,
+interface Buffer {
+	position: WebGLBuffer;
+	normal: WebGLBuffer;
+	colour: WebGLBuffer;
+	indices: WebGLBuffer;
 };
+
+function setupFaces(scene: Scene): void {
+	// Tell WebGL how to pull out the positions from the position
+	// buffer into the vertexPosition attribute.
+	const gl = scene.gl;
+	const programInfo = scene.programInfo;
+	const buffers = scene.faceBuffers;
+	{
+		const numComponents = 3;  // pull out 2 values per iteration
+		const type = scene.gl.FLOAT;    // the data in the buffer is 32bit floats
+		const normalize = false;  // don't normalize
+		const stride = 0;         // how many bytes to get from one set of values to the next
+		// 0 = use type and numComponents above
+		const offset = 0;         // how many bytes inside the buffer to start from
+		gl.bindBuffer(gl.ARRAY_BUFFER, scene.faceBuffers.position);
+		gl.vertexAttribPointer(
+			scene.programInfo.attribLocations.vertexPosition,
+			numComponents,
+			type,
+			normalize,
+			stride,
+			offset);
+		gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+	}
+	// Tell WebGL how to pull out the normals from
+	// the normal buffer into the vertexNormal attribute.
+	{
+		const numComponents = 3;
+		const type = gl.FLOAT;
+		const normalize = false;
+		const stride = 0;
+		const offset = 0;
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normal);
+		gl.vertexAttribPointer(
+			programInfo.attribLocations.vertexNormal,
+			numComponents,
+			type,
+			normalize,
+			stride,
+			offset);
+		gl.enableVertexAttribArray(programInfo.attribLocations.vertexNormal);
+	}
+	{
+		const numComponents = 4;
+		const type = gl.FLOAT;
+		const normalize = false;
+		const stride = 0;
+		const offset = 0;
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffers.colour);
+		gl.vertexAttribPointer(
+			programInfo.attribLocations.vertexColour,
+			numComponents,
+			type,
+			normalize,
+			stride,
+			offset);
+		gl.enableVertexAttribArray(programInfo.attribLocations.vertexColour);
+	}
+
+	// Tell WebGL which indices to use to index the vertices
+	// In this case, it has already been bound in initBuffers(),
+	// but could changed / swapped
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+}
+
+function setupEdges(scene: Scene): void {
+	// Tell WebGL how to pull out the positions from the position
+	// buffer into the vertexPosition attribute.
+	const gl = scene.gl;
+	const edgeBuffers = scene.edgeBuffers;
+	const programInfo = scene.programInfo;
+	{
+		const numComponents = 3;  // pull out 2 values per iteration
+		const type = gl.FLOAT;    // the data in the buffer is 32bit floats
+		const normalize = false;  // don't normalize
+		const stride = 0;         // how many bytes to get from one set of values to the next
+		// 0 = use type and numComponents above
+		// const offset = 0;         // how many bytes inside the buffer to start from
+		gl.bindBuffer(gl.ARRAY_BUFFER, edgeBuffers.position);
+		gl.vertexAttribPointer(
+			programInfo.attribLocations.vertexPosition,
+			numComponents,
+			type,
+			normalize,
+			stride,
+			0);
+		gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+	}
+	// Tell WebGL how to pull out the normals from
+	// the normal buffer into the vertexNormal attribute.
+	{
+		const numComponents = 3;
+		const type = gl.FLOAT;
+		const normalize = false;
+		const stride = 0;
+		const offset = 0;
+		gl.bindBuffer(gl.ARRAY_BUFFER, edgeBuffers.normal);
+		gl.vertexAttribPointer(
+			programInfo.attribLocations.vertexNormal,
+			numComponents,
+			type,
+			normalize,
+			stride,
+			offset);
+		gl.enableVertexAttribArray(programInfo.attribLocations.vertexNormal);
+	}
+	{
+		const numComponents = 4;
+		const type = gl.FLOAT;
+		const normalize = false;
+		const stride = 0;
+		const offset = 0;
+		gl.bindBuffer(gl.ARRAY_BUFFER, edgeBuffers.colour);
+		gl.vertexAttribPointer(
+			programInfo.attribLocations.vertexColour,
+			numComponents,
+			type,
+			normalize,
+			stride,
+			offset);
+		gl.enableVertexAttribArray(programInfo.attribLocations.vertexColour);
+	}
+
+	// Tell WebGL which indices to use to index the vertices
+	// In this case, it has already been bound in initBuffers(),
+	// but could changed / swapped
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, edgeBuffers.indices);
+}
 
 class Scene {
 	public isPlaying: boolean = true
 	public then: number = 0;
 	public pausedAt: number = 0;
 	public gl: WebGLRenderingContext;
-	public programInfo: IProgramInfo;
-	public faceBuffers: IBuffer; // | null
-	public edgeBuffers: IBuffer; // | null
-	constructor(gl: WebGLRenderingContext, programInfo: IProgramInfo, faceBuffers: IBuffer, edgeBuffers: IBuffer) {
+	public programInfo: ProgramInfo;
+	public faceBuffers: Buffer; // | null
+	public edgeBuffers: Buffer; // | null
+	constructor(gl: WebGLRenderingContext, programInfo: ProgramInfo, faceBuffers: Buffer, edgeBuffers: Buffer) {
 		this.gl = gl;
 		this.programInfo = programInfo;
 		this.faceBuffers = faceBuffers;
 		this.edgeBuffers = edgeBuffers;
 	}
 
-	setup() {
+	setup(): void {
 		const gl = this.gl;
 		const programInfo = this.programInfo;
 		const buffers = this.faceBuffers;
@@ -68,11 +196,11 @@ class Scene {
 		const aspect = canvas.clientWidth / canvas.clientHeight;
 		const zNear = 0.1;
 		const zFar = 100.0;
-		const projectionMatrix = new mat4();
-		projectionMatrix.perspective(fov, aspect, zNear, zFar); // mat4.create();
+		const projectionMatrix = new Mat4();
+		projectionMatrix.perspective(fov, aspect, zNear, zFar); // Mat4.create();
 
 		// Set the drawing position to the "identity" point, which is the center of the scene.
-		const modelViewMatrix = new mat4(); // mat4.create();
+		const modelViewMatrix = new Mat4(); // Mat4.create();
 
 		// Tell WebGL how to pull out the positions from the position
 		// buffer into the vertexPosition attribute.
@@ -170,29 +298,29 @@ class Scene {
 
 		// Transpose row-major to column major before setting uniformMatrix4fv()
 		// Set the shader uniforms
-		gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix.transpose());
+		gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix.transposed());
 		gl.uniformMatrix4fv(programInfo.uniformLocations.normalMatrix, false, normalMatrix.data());
-		gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix.transpose());
+		gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix.transposed());
 	}
 
-	reset() {
+	reset(): void {
 		this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 		this.setup();
 	}
 
-	draw(deltaTime: number) {
+	draw(deltaTime: number): void {
 		const gl = this.gl;
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 		// Set the drawing position to the "identity" point, which is the center of the scene.
-		const modelViewMatrix = new mat4(); // mat4.create();
+		const modelViewMatrix = new Mat4(); // Mat4.create();
 
 		// Now move the drawing position a bit to where we want to start drawing the square.
 		const rot = deltaTime * 0.5;
 		modelViewMatrix.translate(0, 0, -6);
 		modelViewMatrix.rotate(rot, [0, 0, 1]);
 		modelViewMatrix.rotate(rot, [0, 1, 0]);
-		gl.uniformMatrix4fv(this.programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix.transpose());
+		gl.uniformMatrix4fv(this.programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix.transposed());
 
 		if (this.faceBuffers === null || this.edgeBuffers === null) {
 			console.log("Buffer === null", this.faceBuffers, this.edgeBuffers);
@@ -209,6 +337,27 @@ class Scene {
 	}
 }
 let scene: Scene;
+
+/// Creates a shader of the given type, uploads the source and compiles it.
+function loadShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
+	const tmp = gl.createShader(type);
+	if (tmp === null) {
+		console.log("gl.createShader(" + type + ") returned null");
+		return null;
+	}
+	const shader: WebGLShader = tmp;
+	gl.shaderSource(shader, source);// Send the source to the shader object
+	gl.compileShader(shader); // Compile the shader program
+
+	// See if it compiled successfully
+	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+		alert('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+		gl.deleteShader(shader);
+		return null;
+	}
+
+	return shader;
+}
 
 /// Initialize a shader program, so WebGL knows how to draw our data
 function initShaderProgram(gl: WebGLRenderingContext, vsSource: string, fsSource: string): WebGLProgram | null {
@@ -248,28 +397,7 @@ function initShaderProgram(gl: WebGLRenderingContext, vsSource: string, fsSource
 	return shaderProgram;
 }
 
-/// Creates a shader of the given type, uploads the source and compiles it.
-function loadShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
-	const tmp = gl.createShader(type);
-	if (tmp === null) {
-		console.log("gl.createShader(" + type + ") returned null");
-		return null;
-	}
-	const shader: WebGLShader = tmp;
-	gl.shaderSource(shader, source);// Send the source to the shader object
-	gl.compileShader(shader); // Compile the shader program
-
-	// See if it compiled successfully
-	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-		alert('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
-		gl.deleteShader(shader);
-		return null;
-	}
-
-	return shader;
-}
-
-function initEdgeBuffers(gl: WebGLRenderingContext): IBuffer | null {
+function initEdgeBuffers(gl: WebGLRenderingContext): Buffer | null {
 	const positionBuffer: WebGLBuffer | null = gl.createBuffer(); // Create a buffer for the square's positions.
 	if (positionBuffer === null) {
 		console.log("gl.createBuffer() returned null");
@@ -314,7 +442,7 @@ function initEdgeBuffers(gl: WebGLRenderingContext): IBuffer | null {
 
 	// Convert the array of colors into a table for all the vertices.
 	let colours: number[] = [];
-	for (var j = 0; j < 8; ++j) {
+	for (let j = 0; j < 8; ++j) {
 		// Repeat each color four times for the four vertices of the face
 		colours = colours.concat(0, 0, 0, 0.5);
 	}
@@ -353,7 +481,7 @@ function initEdgeBuffers(gl: WebGLRenderingContext): IBuffer | null {
 
 }
 
-function initBuffers(gl: WebGLRenderingContext): IBuffer | null {
+function initBuffers(gl: WebGLRenderingContext): Buffer | null {
 	const positionBuffer: WebGLBuffer | null = gl.createBuffer(); // Create a buffer for the square's positions.
 	if (positionBuffer === null) {
 		console.log("gl.createBuffer() returned null");
@@ -386,7 +514,7 @@ function initBuffers(gl: WebGLRenderingContext): IBuffer | null {
 
 	// Convert the array of colors into a table for all the vertices.
 	let colours: number[] = [];
-	for (var j = 0; j < faceColors.length; ++j) {
+	for (let j = 0; j < faceColors.length; ++j) {
 		const c = faceColors[j];
 		// Repeat each color four times for the four vertices of the face
 		colours = colours.concat(c, c, c, c);
@@ -432,136 +560,8 @@ function initBuffers(gl: WebGLRenderingContext): IBuffer | null {
 	};
 }
 
-function setupFaces(scene: Scene) {
-	// Tell WebGL how to pull out the positions from the position
-	// buffer into the vertexPosition attribute.
-	const gl = scene.gl;
-	const programInfo = scene.programInfo;
-	const buffers = scene.faceBuffers;
-	{
-		const numComponents = 3;  // pull out 2 values per iteration
-		const type = scene.gl.FLOAT;    // the data in the buffer is 32bit floats
-		const normalize = false;  // don't normalize
-		const stride = 0;         // how many bytes to get from one set of values to the next
-		// 0 = use type and numComponents above
-		const offset = 0;         // how many bytes inside the buffer to start from
-		gl.bindBuffer(gl.ARRAY_BUFFER, scene.faceBuffers.position);
-		gl.vertexAttribPointer(
-			scene.programInfo.attribLocations.vertexPosition,
-			numComponents,
-			type,
-			normalize,
-			stride,
-			offset);
-		gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
-	}
-	// Tell WebGL how to pull out the normals from
-	// the normal buffer into the vertexNormal attribute.
-	{
-		const numComponents = 3;
-		const type = gl.FLOAT;
-		const normalize = false;
-		const stride = 0;
-		const offset = 0;
-		gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normal);
-		gl.vertexAttribPointer(
-			programInfo.attribLocations.vertexNormal,
-			numComponents,
-			type,
-			normalize,
-			stride,
-			offset);
-		gl.enableVertexAttribArray(programInfo.attribLocations.vertexNormal);
-	}
-	{
-		const numComponents = 4;
-		const type = gl.FLOAT;
-		const normalize = false;
-		const stride = 0;
-		const offset = 0;
-		gl.bindBuffer(gl.ARRAY_BUFFER, buffers.colour);
-		gl.vertexAttribPointer(
-			programInfo.attribLocations.vertexColour,
-			numComponents,
-			type,
-			normalize,
-			stride,
-			offset);
-		gl.enableVertexAttribArray(programInfo.attribLocations.vertexColour);
-	}
-
-	// Tell WebGL which indices to use to index the vertices
-	// In this case, it has already been bound in initBuffers(),
-	// but could changed / swapped
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
-}
-
-function setupEdges(scene: Scene) {
-	// Tell WebGL how to pull out the positions from the position
-	// buffer into the vertexPosition attribute.
-	const gl = scene.gl;
-	const edgeBuffers = scene.edgeBuffers;
-	const programInfo = scene.programInfo;
-	{
-		const numComponents = 3;  // pull out 2 values per iteration
-		const type = gl.FLOAT;    // the data in the buffer is 32bit floats
-		const normalize = false;  // don't normalize
-		const stride = 0;         // how many bytes to get from one set of values to the next
-		// 0 = use type and numComponents above
-		const offset = 0;         // how many bytes inside the buffer to start from
-		gl.bindBuffer(gl.ARRAY_BUFFER, edgeBuffers.position);
-		gl.vertexAttribPointer(
-			programInfo.attribLocations.vertexPosition,
-			numComponents,
-			type,
-			normalize,
-			stride,
-			0);
-		gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
-	}
-	// Tell WebGL how to pull out the normals from
-	// the normal buffer into the vertexNormal attribute.
-	{
-		const numComponents = 3;
-		const type = gl.FLOAT;
-		const normalize = false;
-		const stride = 0;
-		const offset = 0;
-		gl.bindBuffer(gl.ARRAY_BUFFER, edgeBuffers.normal);
-		gl.vertexAttribPointer(
-			programInfo.attribLocations.vertexNormal,
-			numComponents,
-			type,
-			normalize,
-			stride,
-			offset);
-		gl.enableVertexAttribArray(programInfo.attribLocations.vertexNormal);
-	}
-	{
-		const numComponents = 4;
-		const type = gl.FLOAT;
-		const normalize = false;
-		const stride = 0;
-		const offset = 0;
-		gl.bindBuffer(gl.ARRAY_BUFFER, edgeBuffers.colour);
-		gl.vertexAttribPointer(
-			programInfo.attribLocations.vertexColour,
-			numComponents,
-			type,
-			normalize,
-			stride,
-			offset);
-		gl.enableVertexAttribArray(programInfo.attribLocations.vertexColour);
-	}
-
-	// Tell WebGL which indices to use to index the vertices
-	// In this case, it has already been bound in initBuffers(),
-	// but could changed / swapped
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, edgeBuffers.indices);
-}
-
 // Draw the scene repeatedly
-function render(now: number) {
+function render(now: number): void {
 	if (!scene.isPlaying) { return; }
 
 	now *= 0.001;  // convert to seconds
@@ -572,7 +572,7 @@ function render(now: number) {
 	requestAnimationFrame(render);
 }
 
-function main() {
+function main(): void {
 	const canvas: HTMLCanvasElement = document.querySelector("#gl_canvas") as HTMLCanvasElement;
 
 	// Set canvas to dille window
@@ -629,7 +629,7 @@ function main() {
 
 main();
 
-export function togglePlay() {
+export function togglePlay(): void {
 	const now = performance.now() * 0.001;
 	if (scene.isPlaying) {
 		scene.isPlaying = false;
@@ -641,7 +641,7 @@ export function togglePlay() {
 	}
 }
 
-export function resizeCanvas() {
+export function resizeCanvas(): void {
 	console.log("ResizeCanvas");
 	scene.gl.canvas.width = window.innerWidth;
 	scene.gl.canvas.height = window.innerHeight;
