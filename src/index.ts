@@ -320,8 +320,12 @@ class Scene {
 		modelViewMatrix.translate(0, 0, -6);
 		modelViewMatrix.rotate(rot, [0, 0, 1]);
 		modelViewMatrix.rotate(rot, [0, 1, 0]);
-		gl.uniformMatrix4fv(this.programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix.transposed());
 
+		const normalMatrix: Mat4 = modelViewMatrix.clone();
+		normalMatrix.invert();
+
+		gl.uniformMatrix4fv(this.programInfo.uniformLocations.normalMatrix, false, normalMatrix.data());
+		gl.uniformMatrix4fv(this.programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix.transposed());
 		if (this.faceBuffers === null || this.edgeBuffers === null) {
 			console.log("Buffer === null", this.faceBuffers, this.edgeBuffers);
 			return;

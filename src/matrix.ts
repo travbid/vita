@@ -15,82 +15,39 @@ const loadWasm = async (): Promise<void> => {
 loadWasm();
 
 export class Mat4 {
-	private m = [
-		[1, 0, 0, 0],
-		[0, 1, 0, 0],
-		[0, 0, 1, 0],
-		[0, 0, 0, 1],
-	];
+	private m: Float64Array = new Float64Array([
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1,
+	]);
 	// constructor() { }
 	clone(): Mat4 {
 		const cl = new Mat4();
-		cl.m = this.m.map((a: number[]) => (a.slice(0)));
+		cl.m = new Float64Array(this.m); // map((a: number[]) => (a.slice(0)));
 		return cl;
 	}
 	data(): number[] {
-		const m = this.m;
-		return [
-			m[0][0], m[0][1], m[0][2], m[0][3],
-			m[1][0], m[1][1], m[1][2], m[1][3],
-			m[2][0], m[2][1], m[2][2], m[2][3],
-			m[3][0], m[3][1], m[3][2], m[3][3],
-		];
+		const data: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+		for (const i in this.m) {
+			data[i] = this.m[i];
+		}
+		return data;
 	}
 	invert(): void {
 		if (invertMat4x4 === undefined) { return; }
 		invertMat4x4(this.m)
 		return;
-
-		const a00 = this.m[0][0], a01 = this.m[1][0], a02 = this.m[2][0], a03 = this.m[3][0];
-		const a10 = this.m[0][1], a11 = this.m[1][1], a12 = this.m[2][1], a13 = this.m[3][1];
-		const a20 = this.m[0][2], a21 = this.m[1][2], a22 = this.m[2][2], a23 = this.m[3][2];
-		const a30 = this.m[0][3], a31 = this.m[1][3], a32 = this.m[2][3], a33 = this.m[3][3];
-
-		const b00 = a00 * a11 - a01 * a10;
-		const b01 = a00 * a12 - a02 * a10;
-		const b02 = a00 * a13 - a03 * a10;
-		const b03 = a01 * a12 - a02 * a11;
-		const b04 = a01 * a13 - a03 * a11;
-		const b05 = a02 * a13 - a03 * a12;
-		const b06 = a20 * a31 - a21 * a30;
-		const b07 = a20 * a32 - a22 * a30;
-		const b08 = a20 * a33 - a23 * a30;
-		const b09 = a21 * a32 - a22 * a31;
-		const b10 = a21 * a33 - a23 * a31;
-		const b11 = a22 * a33 - a23 * a32;
-
-		// Calculate the determinant
-		let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-
-		if (!det) { return; }
-		det = 1.0 / det;
-
-		this.m[0][0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
-		this.m[1][0] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
-		this.m[2][0] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
-		this.m[3][0] = (a22 * b04 - a21 * b05 - a23 * b03) * det;
-		this.m[0][1] = (a12 * b08 - a10 * b11 - a13 * b07) * det;
-		this.m[1][1] = (a00 * b11 - a02 * b08 + a03 * b07) * det;
-		this.m[2][1] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
-		this.m[3][1] = (a20 * b05 - a22 * b02 + a23 * b01) * det;
-		this.m[0][2] = (a10 * b10 - a11 * b08 + a13 * b06) * det;
-		this.m[1][2] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
-		this.m[2][2] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
-		this.m[3][2] = (a21 * b02 - a20 * b04 - a23 * b00) * det;
-		this.m[0][3] = (a11 * b07 - a10 * b09 - a12 * b06) * det;
-		this.m[1][3] = (a00 * b09 - a01 * b07 + a02 * b06) * det;
-		this.m[2][3] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
-		this.m[3][3] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
 	}
 	perspective(fov: number, aspect: number, near: number, far: number): void {
 		const h = 2 * near * Math.tan(fov);
 		const w = h * aspect;
-		this.m = [
-			[near / w, 0, 0, 0],
-			[0, near / h, 0, 0],
-			[0, 0, -(far + near) / (far - near), -(2 * far * near) / (far - near)],
-			[0, 0, -1, 0],
-		];
+		this.m = new Float64Array([
+			near / w, 0, 0, 0,
+			0, near / h, 0, 0,
+			0, 0, -(far + near) / (far - near), -(2 * far * near) / (far - near),
+			0, 0, -1, 0,
+		]);
 	}
 	rotate(rad: number, axis: [number, number, number]): void {
 		const EPSILON = 0.00001;
@@ -113,36 +70,36 @@ export class Mat4 {
 		const b10 = x * y * t - z * s, b11 = y * y * t + c, b12 = z * y * t + x * s;
 		const b20 = x * z * t + y * s, b21 = y * z * t - x * s, b22 = z * z * t + c;
 
-		const a00 = this.m[0][0], a01 = this.m[1][0], a02 = this.m[2][0], a03 = this.m[3][0];
-		const a10 = this.m[0][1], a11 = this.m[1][1], a12 = this.m[2][1], a13 = this.m[3][1];
-		const a20 = this.m[0][2], a21 = this.m[1][2], a22 = this.m[2][2], a23 = this.m[3][2];
+		const a00 = this.m[0], a01 = this.m[4], a02 = this.m[8], a03 = this.m[12];
+		const a10 = this.m[1], a11 = this.m[5], a12 = this.m[9], a13 = this.m[13];
+		const a20 = this.m[2], a21 = this.m[6], a22 = this.m[10], a23 = this.m[14];
 
 		// Perform rotation-specific matrix multiplication
-		this.m[0][0] = a00 * b00 + a10 * b01 + a20 * b02;
-		this.m[1][0] = a01 * b00 + a11 * b01 + a21 * b02;
-		this.m[2][0] = a02 * b00 + a12 * b01 + a22 * b02;
-		this.m[3][0] = a03 * b00 + a13 * b01 + a23 * b02;
-		this.m[0][1] = a00 * b10 + a10 * b11 + a20 * b12;
-		this.m[1][1] = a01 * b10 + a11 * b11 + a21 * b12;
-		this.m[2][1] = a02 * b10 + a12 * b11 + a22 * b12;
-		this.m[3][1] = a03 * b10 + a13 * b11 + a23 * b12;
-		this.m[0][2] = a00 * b20 + a10 * b21 + a20 * b22;
-		this.m[1][2] = a01 * b20 + a11 * b21 + a21 * b22;
-		this.m[2][2] = a02 * b20 + a12 * b21 + a22 * b22;
-		this.m[3][2] = a03 * b20 + a13 * b21 + a23 * b22;
+		this.m[0] = a00 * b00 + a10 * b01 + a20 * b02;
+		this.m[4] = a01 * b00 + a11 * b01 + a21 * b02;
+		this.m[8] = a02 * b00 + a12 * b01 + a22 * b02;
+		this.m[12] = a03 * b00 + a13 * b01 + a23 * b02;
+		this.m[1] = a00 * b10 + a10 * b11 + a20 * b12;
+		this.m[5] = a01 * b10 + a11 * b11 + a21 * b12;
+		this.m[9] = a02 * b10 + a12 * b11 + a22 * b12;
+		this.m[13] = a03 * b10 + a13 * b11 + a23 * b12;
+		this.m[2] = a00 * b20 + a10 * b21 + a20 * b22;
+		this.m[6] = a01 * b20 + a11 * b21 + a21 * b22;
+		this.m[10] = a02 * b20 + a12 * b21 + a22 * b22;
+		this.m[14] = a03 * b20 + a13 * b21 + a23 * b22;
 	}
 	translate(x: number, y: number, z: number): void {
-		this.m[0][3] += x;
-		this.m[1][3] += y;
-		this.m[2][3] += z;
+		this.m[3] += x;
+		this.m[7] += y;
+		this.m[11] += z;
 	}
 	transposed(): number[] {
 		const m = this.m;
 		return [
-			m[0][0], m[1][0], m[2][0], m[3][0],
-			m[0][1], m[1][1], m[2][1], m[3][1],
-			m[0][2], m[1][2], m[2][2], m[3][2],
-			m[0][3], m[1][3], m[2][3], m[3][3],
+			m[0], m[4], m[8], m[12],
+			m[1], m[5], m[9], m[13],
+			m[2], m[6], m[10], m[14],
+			m[3], m[7], m[11], m[15],
 		];
 	}
 }

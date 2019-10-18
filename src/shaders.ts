@@ -12,15 +12,13 @@ uniform mat4 uProjectionMatrix;
 
 varying lowp vec4 vColour;
 varying highp vec3 vLighting;
-// varying vec3 vPos;
-// varying vec3 vNorm;
 
 void main() {
 	gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
 	vColour = aVertexColour;
 
 	// Apply lighting effect
-	highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
+	highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);
 	highp vec3 directionalLightColor = vec3(1, 1, 1);
 	highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
 
@@ -28,9 +26,6 @@ void main() {
 
 	highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
 	vLighting = ambientLight + (directionalLightColor * directional);
-
-	// vPos = (uModelViewMatrix * aVertexPosition).xyz;
-	// vNorm = (uNormalMatrix * vec4(aVertexNormal, 1.0)).xyz;
 }
 `;
 
@@ -77,27 +72,7 @@ export const fsSource: string = `
 varying lowp vec4 vColour;
 varying highp vec3 vLighting;
 
-// varying mediump vec3 worldPos;
-// varying mediump vec3 worldNormal;
-// noperspective varying mediump vec3 dist;
-// uniform vec3 cameraPos;
-// uniform vec3 lightDir;
-// uniform vec4 singleColor;
-// uniform float isSingleColor;
-
 void main() {
 	gl_FragColor = vec4(vColour.rgb * vLighting, vColour.a);
-
-	// determine frag distance to closest edge
-	// float nearD = min(min(dist[0],dist[1]),dist[2]);
-	// float edgeIntensity = exp2(-1.0*nearD*nearD);
-
-	// vec3 V = normalize(cameraPos - worldPos);
-	// vec3 N = normalize(worldNormal);
-
-	// edgeIntensity = 0.0;
-
-	// blend between edge color and normal lighting color
-	// gl_FragColor = (edgeIntensity * vec4(0.1,0.1,0.1,1.0)) + ((1.0-edgeIntensity) * vColour);
 }
 `;
