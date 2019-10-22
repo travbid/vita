@@ -111,6 +111,8 @@ const configHTML = { // : webpack.Configuration = {
 	plugins: [
 		new CopyPlugin([
 			{ from: "src/index.html", to: "index.html" },
+			{ context: "src/icons", from: "*.ico" },
+			{ context: "src/icons", from: "*.png" },
 		]),
 	],
 };
