@@ -12,7 +12,6 @@ const loadWasm = async (): Promise<void> => {
 	const { invertMat4x4, rotateMat4x4 } = await import('../vita-wasm/pkg');
 	invertMat4 = invertMat4x4;
 	rotateMat4 = rotateMat4x4;
-	console.log(invertMat4x4);
 };
 loadWasm();
 

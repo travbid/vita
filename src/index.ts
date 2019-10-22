@@ -317,9 +317,9 @@ class Scene {
 
 		// Now move the drawing position a bit to where we want to start drawing the square.
 		const rot = deltaTime * 0.5;
-		modelViewMatrix.translate(0, 0, -6);
 		modelViewMatrix.rotate(rot, [0, 0, 1]);
 		modelViewMatrix.rotate(rot, [0, 1, 0]);
+		modelViewMatrix.translate(0, 0, -6);
 
 		const normalMatrix: Mat4 = modelViewMatrix.clone();
 		normalMatrix.invert();
@@ -378,8 +378,6 @@ function initShaderProgram(gl: WebGLRenderingContext, vsSource: string, fsSource
 		return null;
 	}
 	const fragmentShader: WebGLShader = tmp
-	console.log(vertexShader);
-	console.log(fragmentShader);
 
 	// Create the shader program
 	tmp = gl.createProgram();
