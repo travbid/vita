@@ -1,4 +1,5 @@
-<svg width="1250" height="1250" viewBox="-625 -625 1250 1250" xmlns="http://www.w3.org/2000/svg">
+<!-- <svg width="1250" height="1250" viewBox="-625 -625 1250 1250" xmlns="http://www.w3.org/2000/svg"> -->
+<svg width="1100" height="1100" viewBox="-550 -550 1100 1100" xmlns="http://www.w3.org/2000/svg">
 
 	<defs>
 		<linearGradient id="gradient" x1="-301" y1="-521.4" x2="301" y2="521.4" gradientUnits="userSpaceOnUse">
@@ -9,16 +10,18 @@
 	</defs>
 
 	<!-- Background -->
-	<rect x="-625" y="-625" width="1250" height="1250" fill="url(#gradient)" stroke="none" />
+	<!-- <rect x="-550" y="-500" width="1100" height="1000" fill="#333" stroke="none" /> -->
+	<rect x="-625" y="-625" width="1250" height="1250" fill="#333" stroke="none" />
+	<!-- <rect x="-625" y="-625" width="1250" height="1250" fill="url(#gradient)" stroke="none" /> -->
 
 	<!-- T -->
-	<line x1="-450" y1="-350" x2="-50" y2="-350" stroke="rgb(0,0,0)" stroke-width="100" />
-	<line x1="-100" y1="-400" x2="-100" y2="400" stroke="rgb(0,0,0)" stroke-width="100" />
+	<line x1="-450" y1="-350" x2="-50" y2="-350" stroke="#DDD" stroke-width="100" />
+	<line x1="-100" y1="-400" x2="-100" y2="400" stroke="#DDD" stroke-width="100" />
 
 	<!-- B -->
-	<line x1="50"  y1="-350" x2="350" y2="-350" stroke="rgb(0,0,0)" stroke-width="100" />
-	<line x1="300" y1="-400" x2="300" y2="-100" stroke="rgb(0,0,0)" stroke-width="100" />
-	<line x1="50"  y1="50"   x2="450" y2="50"   stroke="rgb(0,0,0)" stroke-width="100" />
-	<line x1="400" y1="0"    x2="400" y2="400"  stroke="rgb(0,0,0)" stroke-width="100" />
+	<line x1="50"  y1="-350" x2="350" y2="-350" stroke="#DDD" stroke-width="100" />
+	<line x1="300" y1="-400" x2="300" y2="-100" stroke="#DDD" stroke-width="100" />
+	<line x1="50"  y1="50"   x2="450" y2="50"   stroke="#DDD" stroke-width="100" />
+	<line x1="400" y1="0"    x2="400" y2="400"  stroke="#DDD" stroke-width="100" />
 
 </svg>
