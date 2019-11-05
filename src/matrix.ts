@@ -40,7 +40,7 @@ export class Mat4 {
 		invertMat4(this.m)
 	}
 	perspective(fov: number, aspect: number, near: number, far: number): void {
-		const h = 2 * near * Math.tan(fov);
+		const h = 2 * near * Math.tan(fov / 2.0);
 		const w = h * aspect;
 		this.m = new Float64Array([
 			near / w, 0, 0, 0,

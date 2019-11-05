@@ -1,5 +1,4 @@
 
-// Vertex shader program
 export const vsSource: string = `
 attribute vec4 aVertexPosition;
 attribute vec3 aVertexNormal;
@@ -34,5 +33,33 @@ varying highp vec3 vLighting;
 
 void main() {
 	gl_FragColor = vec4(vColour.rgb * vLighting, vColour.a);
+}
+`;
+
+
+export const vsEdgeSource: string = `
+attribute vec4 aVertexPosition;
+// attribute vec3 aVertexNormal;
+attribute vec4 aVertexColour;
+
+// uniform mat4 uNormalMatrix;
+uniform mat4 uModelViewMatrix;
+uniform mat4 uProjectionMatrix;
+
+varying lowp vec4 vColour;
+// varying highp vec3 vLighting;
+
+void main() {
+	gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+	vColour = aVertexColour;
+}
+`;
+
+export const fsEdgeSource: string = `
+varying lowp vec4 vColour;
+// varying highp vec3 vLighting;
+
+void main() {
+	gl_FragColor = vColour;
 }
 `;

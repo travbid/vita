@@ -113,6 +113,7 @@ const configHTML = { // : webpack.Configuration = {
 			{ from: "src/index.html", to: "index.html" },
 			{ context: "src/icons", from: "*.ico" },
 			{ context: "src/icons", from: "*.png" },
+			{ context: "src/assets", from: "*.*" },
 		]),
 	],
 };
