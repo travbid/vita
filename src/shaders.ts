@@ -50,7 +50,7 @@ varying lowp vec4 vColour;
 // varying highp vec3 vLighting;
 
 void main() {
-	gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+	gl_Position = (uProjectionMatrix * uModelViewMatrix * aVertexPosition) - vec4(0.0, 0.0, 0.00048828125, 0.0);
 	vColour = aVertexColour;
 }
 `;
