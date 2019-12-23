@@ -10,6 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       with:
+        token: ${{ secrets.CITOKEN_SECRET }}
         submodules: true
     - name: Build
       run: |
