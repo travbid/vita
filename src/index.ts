@@ -52,17 +52,15 @@ class RenderModel {
 	private buffer: Buffer | null;
 	private mode: number;
 	private numIndices: number = 0;
-	// public colourFormula: (arg0: Float32Array) => void = edgesFormula;
+
 	constructor(gl: WebGLRenderingContext, programInfo: ProgramInfo, mode: number, indices: Uint32Array, colourFormula: (arg0: Float32Array) => void) {
 		this.programInfo = programInfo;
 		this.buffer = RenderModel.initBuffers(gl, indices, colourFormula);
-		// if (buf !== null) { this.buffer = buf; }
 		this.mode = mode;
 		this.numIndices = indices.length;
 	}
 
 	private static initBuffers(gl: WebGLRenderingContext, indices: Uint32Array, colourFormula: (arg0: Float32Array) => void): Buffer | null {
-		console.log("RenderModel.initBuffers");
 		const positionBuffer: WebGLBuffer | null = gl.createBuffer();
 		if (positionBuffer === null) {
 			console.log("gl.createBuffer() returned null");
@@ -249,13 +247,8 @@ class Scene {
 		const gl = this.gl;
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-		// if (this.faceModel.buffer === null || this.edgeModel.buffer === null) {
-		// 	console.log("Buffer === null", this.faceModel.buffer, this.edgeModel.buffer);
-		// 	return;
-		// }
-
 		// Set the drawing position to the "identity" point, which is the center of the scene.
-		const modelViewMatrix = new Mat4(); // Mat4.create();
+		const modelViewMatrix = new Mat4();
 
 		// Now move the drawing position a bit to where we want to start drawing the object.
 		const rot = deltaTime;
@@ -432,4 +425,5 @@ const loadWasm = async (): Promise<void> => {
 		});
 	});
 };
+
 loadWasm();
