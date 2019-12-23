@@ -31,18 +31,18 @@ interface Buffer {
 
 function facesFormula(colours: Float32Array): void {
 	for (let j = 0; j < colours.length * 4; j += 4) {
-		colours[j + 0] = 0.2 + Math.random() * 0.45;
-		colours[j + 1] = 0.2 + Math.random() * 0.7;
-		colours[j + 2] = 0.96;
-		colours[j + 3] = 0.5;
+		colours[j + 0] = 0.0;
+		colours[j + 1] = 0.0;
+		colours[j + 2] = 0.0;
+		colours[j + 3] = 1.0;
 	}
 }
 
 function edgesFormula(colours: Float32Array): void {
 	for (let j = 0; j < colours.length * 4; j += 4) {
-		colours[j + 0] = 1.0;
-		colours[j + 1] = 1.0;
-		colours[j + 2] = 1.0;
+		colours[j + 0] = 0.25;
+		colours[j + 1] = 0.25;
+		colours[j + 2] = 0.25;
 		colours[j + 3] = 0.1;
 	}
 }
@@ -257,12 +257,13 @@ class Scene {
 		// Set the drawing position to the "identity" point, which is the center of the scene.
 		const modelViewMatrix = new Mat4(); // Mat4.create();
 
-		// Now move the drawing position a bit to where we want to start drawing the square.
-		const rot = deltaTime * 0.5;
+		// Now move the drawing position a bit to where we want to start drawing the object.
+		const rot = deltaTime;
 
 		modelViewMatrix.rotate(-8 * 3.14 / 16, [1, 0, 0]);
+		modelViewMatrix.translate(0, 0, -0.05);
 		modelViewMatrix.rotate(rot, [0, 1, 0]);
-		modelViewMatrix.translate(0, -1.65, -0.5);
+		modelViewMatrix.translate(0, -1.65, -0.45);
 
 		const normalMatrix: Mat4 = modelViewMatrix.clone();
 		normalMatrix.invert();
@@ -333,14 +334,7 @@ function initShaderProgram(gl: WebGLRenderingContext, vsSource: string, fsSource
 
 // Draw the scene repeatedly
 function render(now: number): void {
-	if (!scene.isPlaying) { return; }
-
-	now *= 0.001;  // convert to seconds
-	const deltaTime = now - scene.then;
-
-	scene.draw(deltaTime);
-
-	requestAnimationFrame(render);
+	scene.draw(3.142 * window.pageYOffset / window.innerHeight);
 }
 
 function main(): void {
@@ -407,20 +401,8 @@ function main(): void {
 	requestAnimationFrame(render);
 }
 
-// main();
-// console.log("window.devicePixelRatio:");
-// console.log(window.devicePixelRatio);
-
-export function togglePlay(): void {
-	const now = performance.now() * 0.001;
-	if (scene.isPlaying) {
-		scene.isPlaying = false;
-		scene.pausedAt = now;
-	} else {
-		scene.isPlaying = true;
-		scene.then += now - scene.pausedAt;
-		requestAnimationFrame(render);
-	}
+export function onScroll(): void {
+	requestAnimationFrame(render);
 }
 
 export function resizeCanvas(): void {
@@ -428,7 +410,7 @@ export function resizeCanvas(): void {
 	scene.gl.canvas.width = window.innerWidth;
 	scene.gl.canvas.height = window.innerHeight;
 	scene.reset();
-	scene.draw(scene.pausedAt - scene.then);
+	requestAnimationFrame(render);
 }
 
 const loadWasm = async (): Promise<void> => {
