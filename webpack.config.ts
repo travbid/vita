@@ -7,25 +7,61 @@ import OptimizeCSSAssetsPlugin from "optimize-css-assets-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
 import WasmPackPlugin from "@wasm-tool/wasm-pack-plugin";
 
+const nodeEnv = process.env.NODE_ENV;
+console.log("NODE_ENV:", nodeEnv);
+
 type ConfMode = "development" | "production" | "none";
 
-const mode: ConfMode = "production";
+let nodeMode: ConfMode;
+if (nodeEnv === undefined) {
+	nodeMode = "development";
+} else if (nodeEnv === "development" || nodeEnv === "production" || nodeEnv === "none") {
+	nodeMode = nodeEnv;
+} else {
+	console.log("Invalid NODE_ENV:", nodeEnv);
+	console.log('NODE_ENV must be "developemnt", "production" or "none"');
+	throw 1;
+}
 
-// Mismatch between versions of @types/webpack in root and mini-css-extract-plugin
-// dependency cause compile error on build. Still useful for debugging with intellisense.
-const configCSS = { // : webpack.Configuration = {
+const mode: ConfMode = nodeMode;
+
+// @types/webpack doesn't include definition for optimization.mangleWasmImports.
+// However, mangleWasmImports made the bundle slightly larger anyway.
+const config: webpack.Configuration = {
 	optimization: {
+		// runtimeChunk: true,
+		// mangleWasmImports: true,
+		// minimize: false,
+		// usedExports: true,
 		minimizer: [new OptimizeCSSAssetsPlugin({})],
 	},
 	mode: mode,
 	entry: {
-		style: "./src/style.styl"
+		index: "./src/index.ts",
+		style: "./src/style.styl",
 	},
 	output: {
 		path: path.resolve(__dirname, "dist"),
-		// filename: "[name].css"
+		filename: "bundle-[name].js",
+		library: "index",
+		libraryTarget: "window",
+	},
+	performance: {
+		hints: process.env.NODE_ENV === 'production' ? "warning" : false
 	},
 	plugins: [
+		new WasmPackPlugin({
+			crateDirectory: path.resolve(__dirname, "./vita-wasm"),
+		}),
+		new CopyPlugin({
+			patterns: [
+				{ from: "src/index.html", to: "index.html" },
+				{ context: "src/icons", from: "*.ico" },
+				{ context: "src/icons", from: "*.png" },
+				{ context: "src/icons", from: "*.svg" },
+				{ context: "src/assets", from: "*.*" },
+			]
+		}),
 		new MiniCssExtractPlugin({
 			// Options similar to the same options in webpackOptions.output
 			// all options are optional
@@ -36,6 +72,15 @@ const configCSS = { // : webpack.Configuration = {
 	],
 	module: {
 		rules: [{
+			test: /\.ts$/,
+			use: [{
+				loader: "ts-loader",
+				options: {
+					// configFile: "tsconfig.json"
+				}
+			}],
+			exclude: /node_modules/
+		}, {
 			test: /\.(css|styl)$/,
 			use: [
 				{
@@ -52,75 +97,7 @@ const configCSS = { // : webpack.Configuration = {
 				"stylus-loader",
 			],
 		}]
-	}
-};
-
-// @types/webpack doesn't include definition for optimization.mangleWasmImports.
-// However, mangleWasmImports made the bundle slightly larger anyway.
-const configJS: webpack.Configuration = {
-	optimization: {
-		// runtimeChunk: true,
-		// mangleWasmImports: true,
-		// minimize: false,
-		// usedExports: true,
-	},
-	mode: mode,
-	entry: {
-		index: "./src/index.ts",
-	},
-	output: {
-		path: path.resolve(__dirname, "dist"),
-		// filename: "bundle-[name].js"
-		filename: "bundle.js",
-		library: "index",
-		libraryTarget: "window",
-	},
-	plugins: [
-		new WasmPackPlugin({
-			crateDirectory: path.resolve(__dirname, "./vita-wasm"),
-		}),
-	],
-	module: {
-		rules: [{
-			test: /\.ts$/,
-			use: [{
-				loader: "ts-loader",
-				options: {
-					// configFile: "tsconfig.json"
-				}
-			}],
-			exclude: /node_modules/
-		}]
 	},
 };
 
-// Mismatch between versions of @types/webpack in root and copy-webpack-plugin
-// dependency cause compile error on build. Still useful for debugging with intellisense.
-const configHTML = { // : webpack.Configuration = {
-	mode: mode,
-	optimization: {
-		// minimizer: [new OptimizeHTMLPlugin({})],
-	},
-	entry: {
-		index: "./src/html.js",
-	},
-	output: {
-		path: path.resolve(__dirname, "dist"),
-		filename: "html.js"
-	},
-	plugins: [
-		new CopyPlugin([
-			{ from: "src/index.html", to: "index.html" },
-			{ context: "src/icons", from: "*.ico" },
-			{ context: "src/icons", from: "*.png" },
-			{ context: "src/icons", from: "*.svg" },
-			{ context: "src/assets", from: "*.*" },
-		]),
-	],
-};
-
-export default [
-	configCSS,
-	configJS,
-	configHTML
-];
+export default config;
