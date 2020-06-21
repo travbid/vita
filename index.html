@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="theme-color" content="#2B3A42">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Travers Biddle</title>
+	<meta name="description" content="Profile of Travers Biddle">
+	<link rel="stylesheet" href="style.css">
+	<link rel="apple-touch-icon" sizes="76x76" href="apple-touch-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png">
+	<link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96">
+	<link rel="icon" type="image/png" href="favicon-128.png" sizes="128x128">
+	<link rel="icon" type="image/png" href="favicon-196x196.png" sizes="196x196">
+</head>
+
+<body onresize="index.resizeCanvas();" onscroll="index.onScroll()">
+
+	<canvas id="gl_canvas" width="100" height="50"></canvas>
+	<script src="bundle-index.js"></script>
+	<div id="content">
+		<div class="screen centered" id="title">
+			<h1 class="title">Travers<br>Biddle</h1>
+			<div class="prompt"><span style="vertical-align: -0.33em;">&#65088;</span> Scroll down</div>
+		</div>
+
+		<div class="spacer"></div>
+
+		<div class="screen" id="work-history">
+			<h2>Work History</h2>
+			<ul>
+				<li>RedZone Robotics: Software Engineer</li>
+				<li>Sphere Identity: Computer Vision Engineer</li>
+				<li>RedZone Robotics: Software Engineer</li>
+			</ul>
+		</div>
+
+		<div class="spacer"></div>
+
+		<svg class="symbol">
+			<symbol id="chevronL" viewBox="0 0 50 100" >
+			  <path d="M0 50 L25 0 L50 0 L25 50 L50 100 L25 100 Z"/>
+			</symbol>
+			<symbol id="chevronR" viewBox="0 0 50 100" >
+				<path d="M50 50 L25 0 L0 0 L25 50 L0 100 L25 100 Z"/>
+			 </symbol>
+		 </svg>
+		<div id="projects">
+			<div class="screen offscreen clickable" id="sv100" onclick="index.restoreProjects();">
+				<h2><svg><use href="#chevronL"/></svg>Manhole Inspection Robot</h2>
+				<h3>RedZone Robotics</h3>
+				<p>
+					An automated device for inspecting manhole pipes. It consists of a top-side
+					controller + winch and a bottom-side device that gets lowered down a manhole and
+					records video and laser imagery.
+				</p><p>
+					I wrote a ROS node that acts as a master control agent for sending commands to other
+					nodes and communicating between the bottom-side and remote control software. It
+					communicates over gRPC and HTTP REST APIs.
+				</p><p>
+					The bottom-side device runs on custom firmware written in Golang, re-used from an
+					earlier project I worked on heavily (Wastewater Pipe Inspection Robot). I re-wrote
+					it to handle communication from the top-side and remote control while maintaining
+					backwards compatibility.
+				</p>
+			</div>
+			<div class="screen offscreen clickable" id="mobile-ocr" onclick="index.restoreProjects();">
+				<h2><svg><use href="#chevronL"/></svg>Mobile OCR</h2>
+				<h3>Sphere Identity / Techemy Projects</h3>
+				<p>
+					In a team of two, I created SDK libraries for iOS and Android apps to perform OCR. I
+					wrote the TensorFlow-interaction code in C++ to get the performance benefits of
+					native code and so both mobile platforms could use the same code.
+					<ul>
+						<li>Built and used TensorFlow and TFLite to execute neural net models on mobile
+						devices from C++. I modified the build scripts for Android to also build for
+						arm64, x86 and x86_64 architectures on a more recent version of the NDK.</li>
+						<li>Learned iOS and Android development to create libraries that pull raw image data
+						from the device camera and send it to the C++ back-end to perform OCR. I also wrote
+						wrapper code between Swift/Java and C++ to make this possible.</li>
+						<li>Used OpenCV for image filtering and processing, including an algorithm to auto-crop
+						and transform a document from the image background.</li>
+						<li>Wrote a Stroke Width Transform implementation to detect text in an image.</li>
+						<li>Wrote unit tests using Catch2 framework for sensitive functions. Wrote CMake and
+						Meson files to build and run the tests more easily.</li>
+						<li>Learned fundamental Neural Net theory.</li>
+						<li>Proposed the product name - OCRology - and designed the initial logo concept.</li>
+					</ul>
+				</p>
+			</div>
+			<div class="screen offscreen clickable" id="fisheye-calibration" onclick="index.restoreProjects();">
+				<h2><svg><use href="#chevronL"/></svg>Fisheye Calibration</h2>
+				<h3>RedZone Robotics</h3>
+				<p>
+					I started work on an Electron desktop tool for calibrating our device’s cameras,
+					required for measuring the internal diameter with structured light. It used Node
+					Native Add-Ons to call C++ OpenCV libraries. The cameras had fisheye lenses with a
+					180° field of view, requiring a floor-to-ceiling calibration wall so I modified
+					OpenCV source code to process an arbitrary-sized calibration grid. I submitted a
+					bugfix pull request to OpenCV for a bug that showed itself on my data sets, which was
+					accepted.
+				</p>
+			</div>
+			<div class="screen offscreen clickable" id="md-pod" onclick="index.restoreProjects();">
+				<h2><svg><use href="#chevronL"/></svg>Wastewater Pipe Inspection Robot</h2>
+				<h3>RedZone Robotics</h3>
+				<p>
+					RedZone Robotics produces equipment for measuring the condition and degradation of
+					wastewater pipes and provides analytics on the data collected. Most of my work was
+					involved with a robot that recorded video of pipes.
+				</p><p>
+					In a team of three, I developed recording firmware in Golang for a Linux-based
+					measurement recording device. I wrote modules for interfacing with IMU sensors,
+					saving to a new custom file format, converting between old and new formats,
+					responding to user interaction and general improvements to the system architecture.
+				</p><p>
+					I designed and implemented the system for providing updates to the device via an ssh
+					connection to a private Apt repository. Updates were installed as Debian packages and
+					systemd could then start the services on boot.
+				</p><p>
+					I also designed and wrote half of the Web UI for operating the device. It allowed
+					users to start/stop recording, configure settings, preview a live feed, review
+					previous recordings and transfer data to external storage, all from their phone or tablet via a direct WiFi connection to the device.
+				</p><p>
+					I wrote a C++ encoder / decoder for our custom file format.
+				</p>
+			</div>
+			<div class="screen offscreen clickable" id="cbor-parser" onclick="index.restoreProjects();">
+				<h2><svg><use href="#chevronL"/></svg>CBOR Parser</h2>
+				<h3>Open Source</h3>
+				<p>
+					A Rust crate for parsing CBOR.
+				</p><p>
+					<a>github.com/travbid/cborg</a>
+				</p>
+			</div>
+			<div class="screen offscreen clickable" id="rclgo" onclick="index.restoreProjects();">
+				<h2><svg><use href="#chevronL"/></svg>RCLGO</h2>
+				<h3>Open Source</h3>
+				<p>
+					A work-in-progress for writing ROS nodes in Golang.
+				</p><p>
+					<a>github.com/rclgo/rclgo</a>
+				</p>
+			</div>
+			<div class="screen" id="project-selection">
+				<div id="projects-title">
+					<h2>Select Projects</h2>
+				</div>
+				<div class="clickable" onclick="index.showProject('sv100')">
+					<h2>Manhole Inspection Robot</h2>
+					<h3>RedZone Robotics</h3>
+				</div>
+				<div class="clickable" onclick="index.showProject('mobile-ocr')">
+					<h2>Mobile OCR Library</h2>
+					<h3>Sphere Identity / Techemy Projects</h3>
+					</div>
+				<div class="clickable" onclick="index.showProject('fisheye-calibration')">
+					<h2>Fisheye Calibration Software</h2>
+					<h3>RedZone Robotics</h3>
+				</div>
+				<div class="clickable" onclick="index.showProject('md-pod')">
+					<h2>Wastewater Pipe Inspection Robot</h2>
+					<h3>RedZone Robotics</h3>
+				</div>
+				<div class="clickable" onclick="index.showProject('cbor-parser')">
+					<h2>CBOR Parser</h2>
+					<h3>Open Source</h3>
+				</div>
+				<div class="clickable" onclick="index.showProject('rclgo')">
+					<h2>RCLGO</h2>
+					<h3>Open Source</h3>
+				</div>
+			</div>
+		</div>
+
+		<div class="spacer"></div>
+
+		<div class="screen" id="tech-tools">
+			<h2>Technology / Tools</h2>
+			<div>
+				<ul class="tech-items">
+					<li>
+						<span>C++</span>
+						<svg height="4" width="100">
+							<line x1="0" y1="2" x2="100" y2="2" stroke="#FFF" stroke-width="4" /></svg>
+					</li>
+					<li>
+						<a href="https://www.rust-lang.org/" target="_blank" rel="noopener noreferrer">Rust</a>
+						<svg height="4" width="100">
+							<line x1="0" y1="2" x2="90" y2="2" stroke="#FFF" stroke-width="4" /></svg>
+					</li>
+					<li>
+						<span>Typescript</span>
+						<svg height="4" width="100">
+							<line x1="0" y1="2" x2="80" y2="2" stroke="#FFF" stroke-width="4" /></svg>
+					</li>
+					<li>
+						<a href="https://golang.org/" target="_blank" rel="noopener noreferrer">Golang</a>
+						<svg height="4" width="100">
+							<line x1="0" y1="2" x2="70" y2="2" stroke="#FFF" stroke-width="4" /></svg>
+					</li>
+				</ul>
+				<ul>
+					<li>Git</li>
+					<li>Linux</li>
+				</ul>
+				<ul>
+					<li><a href="https://opencv.org/"     target="_blank" rel="noopener noreferrer">OpenCV</a></li>
+					<li><a href="https://vuejs.org/"      target="_blank" rel="noopener noreferrer">Vue JS</a></li>
+					<li><a href="https://tensorflow.org/" target="_blank" rel="noopener noreferrer">Tensorflow</a></li>
+					<li><a href="https://svelte.dev/"     target="_blank" rel="noopener noreferrer">Svelte</a></li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="spacer"></div>
+
+		<div class="screen" id="education">
+			<h2>Education</h2>
+			<ul>
+				<li>Master of Engineering
+					<ul>
+						<li>"Simplified Computer-Aided Design"</li>
+						<li>Mechatronics major</li>
+					</ul>
+				</li>
+				<li>Bachelor of Engineering (Hons)
+					<ul>
+						<li>Mechatronics major</li>
+						<li>Massey University Dean's list 2008 ?</li>
+						<li>Massey University High Achiever's scholarship</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+
+		<div class="spacer"></div>
+
+		<div class="screen" id="interests">
+			<h2>Interests</h2>
+			<ul>
+				<li>Fitness</li>
+				<li>Robots</li>
+				<li>Film</li>
+				<li>Scale Modelling</li>
+				<li>Design</li>
+			</ul>
+		</div>
+
+		<div class="spacer"></div>
+
+		<div class="screen" id="brag">
+			<h2>This website was built with Typescript, WebGL, Rust, WebAssembly and Webpack</h2>
+			<a href="https://github.com/travbid/vita" target="_blank" rel="noopener noreferrer">View source on Github<svg><use href="#chevronR"/></svg></a>
+		</div>
+
+		<div class="spacer"></div>
+
+		<div class="screen" id="contact">
+			<h2>Contact</h2>
+			<ul class="contact-list">
+				<li><a href="mailto:traversbiddle@gmail.com"><img src="email-outline.svg"
+							height="20px" />traversbiddle@gmail.com</a></li>
+				<li><a href="https://www.linkedin.com/in/traversbiddle/" target="_blank" rel="noopener noreferrer"><img
+							src="LI-In-Bug.png" height="20px" />LinkedIn</a></li>
+				<li><a href="https://github.com/travbid" target="_blank" rel="noopener noreferrer"><img
+							src="GitHub-Mark-Light-32px.png" height="20px" />GitHub</a></li>
+				<li><a href="https://gitlab.com/travbid" target="_blank" rel="noopener noreferrer"><img
+							src="gitlab_logo.svg" height="20px">GitLab</a></li>
+				<!-- <li><a href="javascript:void(0);"><img src="file-account.svg" height="20px">Download CV</a></li> -->
+			</ul>
+		</div>
+	</div>
+
+</body>
+
+</html>
