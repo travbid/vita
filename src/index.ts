@@ -1,39 +1,62 @@
 // @ts-ignore: An import path cannot end with a '.ts' extension
-import { vsSource, fsSource, vsEdgeSource, fsEdgeSource } from "./shaders.ts";
+import { ProgramInfo } from "./interfaces.ts";
 // @ts-ignore: An import path cannot end with a '.ts' extension
 import { Mat4 } from "./matrix.ts";
+// @ts-ignore: An import path cannot end with a '.ts' extension
+import { DefaultCollection, EdgesModel, FacesModel, MeshModel } from "./model.ts";
+// @ts-ignore: An import path cannot end with a '.ts' extension
+import { RenderModel } from "./render_model.ts";
+// @ts-ignore: An import path cannot end with a '.ts' extension
+import { Scene } from "./scene.ts";
+// @ts-ignore: An import path cannot end with a '.ts' extension
+import { vsSource, fsSource, vsEdgeSource, fsEdgeSource } from "./shaders.ts";
+// @ts-ignore: An import path cannot end with a '.ts' extension
+import { CalibrationCollection, generate as generateCali } from "./project-items/calibration.ts"
+// @ts-ignore: An import path cannot end with a '.ts' extension
+import { SV100Collection, generate as generateSV100 } from "./project-items/sv100.ts"
 
-const vertices = new Float32Array(4200);
-const normals = new Float32Array(4200);
-const vIndices = new Uint32Array(8388);
-const eIndices = new Uint32Array(8388);
+const humanFigure = new MeshModel((2796 + 4) * 1.5, 2796 * 3);
+const sv100Pod = new MeshModel(384, 256);
+const sv100Laser = new EdgesModel(16);
+const sv100Manhole = new EdgesModel(40);
+const sv100Lights = new FacesModel(16);
+const calibrationWall = new FacesModel(13 * 9);
 
-interface ProgramInfo {
-	program: WebGLProgram;
-	attribLocations: {
-		vertexPosition: number;
-		vertexNormal: number | null;
-		vertexColour: number;
-	};
-	uniformLocations: {
-		projectionMatrix: WebGLUniformLocation | null;
-		normalMatrix: WebGLUniformLocation | null;
-		modelViewMatrix: WebGLUniformLocation | null;
-	};
-}
+const human = new DefaultCollection();
+const calibration = new CalibrationCollection();
+const sv100 = new SV100Collection();
 
-interface Buffer {
-	position: WebGLBuffer;
-	normal: WebGLBuffer;
-	colour: WebGLBuffer;
-	indices: WebGLBuffer;
+let scene: Scene;
+let animationStart = 0;
+
+const ids = [
+	"title",
+	"work-history",
+	"project-selection",
+	"tech-tools",
+	"education",
+	"interests",
+	"brag",
+	// "contact",
+];
+const layout = {
+	"title": [0, 0],
+	"work-history": [0, 0],
+	"project-selection": [0, 0],
+	"tech-tools": [0, 0],
+	"education": [0, 0],
+	"interests": [0, 0],
+	"brag": [0, 0],
+	// "contact": [0, 0],
 };
+
+let mode: string = "";
 
 function facesFormula(colours: Float32Array): void {
 	for (let j = 0; j < colours.length * 4; j += 4) {
-		colours[j + 0] = 0.0;
-		colours[j + 1] = 0.0;
-		colours[j + 2] = 0.0;
+		colours[j + 0] = 0.0625;
+		colours[j + 1] = 0.0625;
+		colours[j + 2] = 0.0625;
 		colours[j + 3] = 1.0;
 	}
 }
@@ -43,229 +66,36 @@ function edgesFormula(colours: Float32Array): void {
 		colours[j + 0] = 0.25;
 		colours[j + 1] = 0.25;
 		colours[j + 2] = 0.25;
-		colours[j + 3] = 0.1;
+		colours[j + 3] = 1.00;
 	}
 }
 
-class RenderModel {
-	private programInfo: ProgramInfo;
-	private buffer: Buffer | null;
-	private mode: number;
-	private numIndices: number = 0;
-
-	constructor(gl: WebGLRenderingContext, programInfo: ProgramInfo, mode: number, indices: Uint32Array, colourFormula: (arg0: Float32Array) => void) {
-		this.programInfo = programInfo;
-		this.buffer = RenderModel.initBuffers(gl, indices, colourFormula);
-		this.mode = mode;
-		this.numIndices = indices.length;
-	}
-
-	private static initBuffers(gl: WebGLRenderingContext, indices: Uint32Array, colourFormula: (arg0: Float32Array) => void): Buffer | null {
-		const positionBuffer: WebGLBuffer | null = gl.createBuffer();
-		if (positionBuffer === null) {
-			console.log("gl.createBuffer() returned null");
-			return null;
-		}
-		// Select this as the one to apply buffer operations to
-		gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-		// Pass the list of positions into WebGL to build the shape.
-		// We do this by creating a Float32Array from the JavaScript array,
-		// then use it to fill the current buffer.
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-
-		const normalBuffer: WebGLBuffer | null = gl.createBuffer();
-		if (normalBuffer === null) {
-			console.log("gl.createBuffer() returned null");
-			return null;
-		}
-		gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
-
-		// Convert the array of colors into a table for all the vertices.
-		const colours = new Float32Array(indices.length);
-		colourFormula(colours);
-
-		const colourBuffer: WebGLBuffer | null = gl.createBuffer();
-		if (colourBuffer === null) {
-			console.log("gl.createBuffer() returned null");
-			return null;
-		}
-		gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, colours, gl.STATIC_DRAW);
-
-		const indexBuffer: WebGLBuffer | null = gl.createBuffer();
-		if (indexBuffer === null) {
-			console.log("gl.createBuffer() returned null");
-			return null;
-		}
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-		// Now send the element array to GL
-		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
-
-		return {
-			position: positionBuffer,
-			normal: normalBuffer,
-			colour: colourBuffer,
-			indices: indexBuffer,
-		};
-	}
-
-	setup(gl: WebGLRenderingContext): void {
-		// Tell WebGL how to pull out the positions from the position
-		// buffer into the vertexPosition attribute.
-		const programInfo = this.programInfo;
-		if (this.buffer === null) { console.log("!!! model buffer === null"); return; }
-		const buffers = this.buffer;
-		{
-			const numComponents = 3;  // pull out 3 values per iteration
-			const type = gl.FLOAT;    // the data in the buffer is 32bit floats
-			const normalize = false;  // don't normalize
-			const stride = 0;         // how many bytes to get from one set of values to the next
-			// 0 = use type and numComponents above
-			const offset = 0;         // how many bytes inside the buffer to start from
-			gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-			gl.vertexAttribPointer(
-				programInfo.attribLocations.vertexPosition,
-				numComponents,
-				type,
-				normalize,
-				stride,
-				offset);
-			gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
-		}
-		// Tell WebGL how to pull out the normals from
-		// the normal buffer into the vertexNormal attribute.
-		if (programInfo.attribLocations.vertexNormal !== null) {
-			const numComponents = 3;
-			const type = gl.FLOAT;
-			const normalize = false;
-			const stride = 0;
-			const offset = 0;
-			gl.bindBuffer(gl.ARRAY_BUFFER, buffers.normal);
-			gl.vertexAttribPointer(
-				programInfo.attribLocations.vertexNormal,
-				numComponents,
-				type,
-				normalize,
-				stride,
-				offset);
-			gl.enableVertexAttribArray(programInfo.attribLocations.vertexNormal);
-		}
-		{
-			const numComponents = 4;
-			const type = gl.FLOAT;
-			const normalize = false;
-			const stride = 0;
-			const offset = 0;
-			gl.bindBuffer(gl.ARRAY_BUFFER, buffers.colour);
-			gl.vertexAttribPointer(
-				programInfo.attribLocations.vertexColour,
-				numComponents,
-				type,
-				normalize,
-				stride,
-				offset);
-			gl.enableVertexAttribArray(programInfo.attribLocations.vertexColour);
-		}
-
-		// Tell WebGL which indices to use to index the vertices
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
-	}
-
-	draw(gl: WebGLRenderingContext, normalMatrix: Mat4, modelViewMatrix: Mat4, projMat: Mat4): void {
-		gl.useProgram(this.programInfo.program);
-		this.setup(gl);
-		gl.uniformMatrix4fv(this.programInfo.uniformLocations.projectionMatrix, false, projMat.transposed());
-		if (this.programInfo.uniformLocations.normalMatrix !== null) {
-			gl.uniformMatrix4fv(this.programInfo.uniformLocations.normalMatrix, false, normalMatrix.data());
-		}
-		gl.uniformMatrix4fv(this.programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix.transposed());
-		const offset = 0;
-		gl.drawElements(this.mode, this.numIndices, gl.UNSIGNED_SHORT, offset);
-	}
-};
-
-class Scene {
-	public isPlaying: boolean = true
-	public then: number = 0;
-	public pausedAt: number = 0;
-	public gl: WebGLRenderingContext;
-	public faceModel: RenderModel;
-	public edgeModel: RenderModel;
-	public projectionMatrix: Mat4 = new Mat4();
-	constructor(gl: WebGLRenderingContext, faceModel: RenderModel, edgeModel: RenderModel) {
-		this.gl = gl;
-		this.faceModel = faceModel;
-		this.edgeModel = edgeModel;
-		this.setup();
-	}
-
-	setup(): void {
-		console.log("Scene setup");
-		const gl = this.gl;
-
-		gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-		gl.clearColor(0.2, 0.2, 0.2, 1.0);  // Clear to grey, fully opaque
-		// gl.colorMask(false, false, false, true);
-		gl.clearDepth(1.0);                 // Clear everything
-		gl.enable(gl.DEPTH_TEST);           // Enable depth testing
-		gl.enable(gl.BLEND);
-		// gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
-
-		// Clear the canvas before we start drawing on it.
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-		// Create a perspective matrix, a special matrix that is
-		// used to simulate the distortion of perspective in a camera.
-		// Our field of view is 45 degrees, with a width/height
-		// ratio that matches the display size of the canvas
-		// and we only want to see objects between 0.1 units
-		// and 100 units away from the camera.
-		const fov = 45 * Math.PI / 180.0; // in radians
-		const canvas = gl.canvas as HTMLCanvasElement;
-		const aspect = canvas.clientWidth / canvas.clientHeight;
-		const zNear = 0.075;
-		const zFar = 10.0;
-		this.projectionMatrix = new Mat4();
-		this.projectionMatrix.perspective(fov, aspect, zNear, zFar);
-
-		// Set the drawing position to the "identity" point, which is the center of the scene.
-		const modelViewMatrix = new Mat4();
-		const normalMatrix: Mat4 = modelViewMatrix.clone();
-		normalMatrix.invert();
-
-		this.faceModel.setup(gl);
-		this.edgeModel.setup(gl);
-	}
-
-	reset(): void {
-		this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-		this.setup();
-	}
-
-	draw(deltaTime: number): void {
-		const gl = this.gl;
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-		// Set the drawing position to the "identity" point, which is the center of the scene.
-		const modelViewMatrix = new Mat4();
-
-		// Now move the drawing position a bit to where we want to start drawing the object.
-		const rot = deltaTime;
-
-		modelViewMatrix.rotate(-8 * 3.14 / 16, [1, 0, 0]);
-		modelViewMatrix.translate(0, 0, -0.05);
-		modelViewMatrix.rotate(rot, [0, 1, 0]);
-		modelViewMatrix.translate(0, -1.65, -0.45);
-
-		const normalMatrix: Mat4 = modelViewMatrix.clone();
-		normalMatrix.invert();
-
-		this.faceModel.draw(this.gl, normalMatrix, modelViewMatrix, this.projectionMatrix);
-		this.edgeModel.draw(this.gl, normalMatrix, modelViewMatrix, this.projectionMatrix);
+function laserFormula(colours: Float32Array): void {
+	for (let j = 0; j < colours.length; j += 4) {
+		colours[j + 0] = 1.00;
+		colours[j + 1] = 0.125;
+		colours[j + 2] = 0.125;
+		colours[j + 3] = 1.00;
 	}
 }
-let scene: Scene;
+
+function manholeFormula(colours: Float32Array): void {
+	for (let j = 0; j < colours.length; j += 4) {
+		colours[j + 0] = 0.5;
+		colours[j + 1] = 0.5;
+		colours[j + 2] = 0.5;
+		colours[j + 3] = 1.00;
+	}
+}
+
+function lightsFormula(colours: Float32Array): void {
+	for (let j = 0; j < colours.length * 4; j += 4) {
+		colours[j + 0] = 0.25;
+		colours[j + 1] = 0.25;
+		colours[j + 2] = 0.25;
+		colours[j + 3] = 0.2;
+	}
+}
 
 /// Creates a shader of the given type, uploads the source and compiles it.
 function loadShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader | null {
@@ -275,12 +105,11 @@ function loadShader(gl: WebGLRenderingContext, type: number, source: string): We
 		return null;
 	}
 	const shader: WebGLShader = tmp;
-	gl.shaderSource(shader, source);// Send the source to the shader object
+	gl.shaderSource(shader, source); // Send the source to the shader object
 	gl.compileShader(shader); // Compile the shader program
 
-	// See if it compiled successfully
-	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-		alert('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+	if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) { // See if it compiled successfully
+		console.log('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
 		gl.deleteShader(shader);
 		return null;
 	}
@@ -290,7 +119,6 @@ function loadShader(gl: WebGLRenderingContext, type: number, source: string): We
 
 /// Initialize a shader program, so WebGL knows how to draw our data
 function initShaderProgram(gl: WebGLRenderingContext, vsSource: string, fsSource: string): WebGLProgram | null {
-	console.log("initShaderProgram");
 	let tmp = loadShader(gl, gl.VERTEX_SHADER, vsSource);
 	if (tmp === null) {
 		console.log("loadShader(vertex) returned null");
@@ -318,30 +146,156 @@ function initShaderProgram(gl: WebGLRenderingContext, vsSource: string, fsSource
 
 	// If creating the shader program failed, alert
 	if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-		alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+		console.log('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
 		return null;
 	}
 
 	return shaderProgram;
 }
 
-// Draw the scene repeatedly
+function transition(now: number): void {
+	const period = 1_000.0;
+	let p = (now - animationStart) / period;
+	p = Math.min(p, 1.0);
+	p = (1.0 - Math.cos(p * Math.PI)) / 2.0;
+	const viewMatrix = new Mat4();
+	viewMatrix.rotate(p * Math.PI, [0, 1, 0]);
+	scene.setView(viewMatrix);
+
+	// const rot = 0.5 * Math.PI * window.pageYOffset / window.innerHeight;
+	scene.draw();
+	if (now - animationStart > period) { return; }
+
+	requestAnimationFrame(transition);
+}
+
+function transitionBack(now: number): void {
+	const period = 1_000.0;
+	let p = (now - animationStart) / period;
+	p = 1.0 - Math.min(p, 1.0);
+	p = (1.0 - Math.cos(p * Math.PI)) / 2.0;
+	const viewMatrix = new Mat4();
+	viewMatrix.rotate(p * Math.PI, [0, 1, 0]);
+	scene.setView(viewMatrix);
+
+	// const rot = 0.5 * Math.PI * window.pageYOffset / window.innerHeight;
+	scene.draw();
+	if (now - animationStart > period) {
+		scene.clear();
+		scene.addModel(human);
+		return;
+	}
+	requestAnimationFrame(transitionBack);
+}
+
 function render(now: number): void {
-	scene.draw(3.142 * window.pageYOffset / window.innerHeight);
+	if (scene === undefined) { return; }
+
+	// const t1 = performance.now();
+	scene.draw();
+	// const t2 = performance.now();
+	// console.log("render:", t2-t1, "ms");
+}
+
+function updateScroll(): void {
+
+	const pageTop = window.scrollY;
+	const pageBotttom = window.scrollY + window.innerHeight;
+	for (let i = 0; i < ids.length; i++) {
+		const id = ids[i];
+		// @ts-ignore
+		const elLayout = layout[id];
+		const elTop = elLayout[0];
+		const elBottom = elLayout[0] + elLayout[1];
+		if (pageBotttom > elTop && pageTop < elBottom) {
+			const topProp = (pageBotttom - elTop) / window.innerHeight;
+			const bottomProp = (elBottom - pageTop) / window.innerHeight;
+			const viewEl = document.getElementById(id);
+			if (viewEl === null) {
+				console.log("!!! Element with id", id, "is null");
+				continue;
+			}
+			if (0.0 < topProp && topProp < 0.333) {
+				viewEl.style.opacity = (topProp / 0.333).toString();
+				// viewEl.style.transform = "matrix(1,0,0,1,0," + ((0.5 - topProp) * 500).toString() + ")"
+			} else if (0.0 < bottomProp && bottomProp < 0.333) {
+				viewEl.style.opacity = (bottomProp / 0.333).toString();
+				// viewEl.style.transform = "matrix(1,0,0,1,0," + ((bottomProp - 0.5) * 500).toString() + ")"
+			} else {
+				viewEl.style.opacity = "1";
+				// viewEl.style.transform = "matrix(1,0,0,1,0,0)"
+			}
+		}
+	}
+
+	const rot = 0.5 * Math.PI * window.pageYOffset / window.innerHeight;
+
+	const hModelMatrix = new Mat4();
+	hModelMatrix.rotate(-Math.PI / 2.0, [1, 0, 0]);
+	hModelMatrix.rotate(rot, [0, 1, 0]);
+	hModelMatrix.translate(0, (rot / 25.0) - 1.6, -0.45);
+	human.setMatrix(hModelMatrix);
+
+	switch (mode) {
+		case "sv100":
+			const sModelMatrix = new Mat4();
+			// sModelMatrix.rotate(rot / 25.0, [0, 1, 0]);
+			sModelMatrix.rotate((rot - 4.93125) / 12.5, [0, 1, 0]);
+			sModelMatrix.translate(0, (1.0 - 0.211) - (rot / 6.25), 0);
+			sv100.setMatrix(sModelMatrix);
+			break;
+
+		case "fisheye-calibration":
+			calibration.recalculate(scene.gl, rot);
+			break;
+	}
+}
+
+export function resizeCanvas(): void {
+	// Calculate new div layout
+	const elements = [];
+	for (let i = 0; i < ids.length; i++) {
+		const id = ids[i];
+		const el = document.getElementById(id);
+		if (el === null) { continue; }
+		el.style.transform = "";
+		elements.push(el);
+	}
+	for (let i = 0; i < ids.length; i++) {
+		const id = ids[i];
+		const el = elements[i];
+		// @ts-ignore
+		layout[id][0] = window.pageYOffset + el.getBoundingClientRect().top
+		// @ts-ignore
+		layout[id][1] = el.offsetHeight;
+	}
+
+	// Hack because innerHeight changes when showing/hiding bottom bar
+	if (scene === undefined) { return; }
+
+	scene.gl.canvas.width = window.innerWidth;
+	scene.gl.canvas.height = window.innerHeight;
+
+	scene.reset();
+	requestAnimationFrame(render);
+	requestAnimationFrame(updateScroll);
 }
 
 function main(): void {
-	const canvas: HTMLCanvasElement = document.querySelector("#gl_canvas") as HTMLCanvasElement;
+	const canvas: HTMLCanvasElement = document.getElementById("gl_canvas") as HTMLCanvasElement;
+
+	canvas.style.opacity = "1";
 
 	// Set canvas to fill window
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
+
 	const ctx = canvas.getContext("webgl", {
 		// premultipliedAlpha: false,  // Ask for non-premultiplied alpha
 		// alpha: false,
 	});
 	if (ctx === null) {
-		alert("Unable to initialise WebGL");
+		console.log("Unable to initialise WebGL");
 		return;
 	}
 	const gl: WebGLRenderingContext = ctx;
@@ -387,43 +341,144 @@ function main(): void {
 		},
 	};
 
-	const faceModel = new RenderModel(gl, programInfo, gl.TRIANGLES, vIndices, facesFormula);
-	const edgeModel = new RenderModel(gl, programInfo2, gl.LINES, eIndices, edgesFormula);
+	const hfaceModel = new RenderModel(gl, programInfo, gl.TRIANGLES, humanFigure.vertices, humanFigure.normals, humanFigure.vIndices, facesFormula);
+	const hedgeModel = new RenderModel(gl, programInfo2, gl.LINES, humanFigure.vertices, humanFigure.normals, humanFigure.eIndices, edgesFormula);
+	human.addRenderModel(hfaceModel);
+	human.addRenderModel(hedgeModel);
 
-	scene = new Scene(gl, faceModel, edgeModel);
+	const sfaceModel = new RenderModel(gl, programInfo, gl.TRIANGLES, sv100Pod.vertices, sv100Pod.normals, sv100Pod.vIndices, facesFormula);
+	const sedgeModel = new RenderModel(gl, programInfo2, gl.LINES, sv100Pod.vertices, sv100Pod.normals, sv100Pod.eIndices, edgesFormula);
+	const slaserModel = new RenderModel(gl, programInfo2, gl.LINES, sv100Laser.vertices, new Float32Array(), sv100Laser.eIndices, laserFormula);
+	const smanholeModel = new RenderModel(gl, programInfo2, gl.LINES, sv100Manhole.vertices, new Float32Array(), sv100Manhole.eIndices, manholeFormula);
+	const slightModel = new RenderModel(gl, programInfo, gl.TRIANGLES, sv100Lights.vertices, sv100Lights.normals, sv100Lights.vIndices, lightsFormula);
+	sv100.podFaces = sfaceModel;
+	sv100.podEdges = sedgeModel;
+	sv100.laser = slaserModel;
+	sv100.manhole = smanholeModel;
+	sv100.lights = slightModel;
+
+	const calibrationModel = new RenderModel(gl, programInfo, gl.TRIANGLES, calibrationWall.vertices, calibrationWall.normals, calibrationWall.vIndices, manholeFormula);
+	calibration.wall = calibrationModel;
+
+	scene = new Scene(gl);
+	scene.addModel(human);
+
+	resizeCanvas();
+
 	requestAnimationFrame(render);
 }
 
 export function onScroll(): void {
+	requestAnimationFrame(updateScroll);
 	requestAnimationFrame(render);
+	// const el = document.getElementById("ontop2");
 }
 
-export function resizeCanvas(): void {
-	console.log("ResizeCanvas");
-	scene.gl.canvas.width = window.innerWidth;
-	scene.gl.canvas.height = window.innerHeight;
-	scene.reset();
-	requestAnimationFrame(render);
+export function showProject(projName: string): void {
+	const el = document.getElementById("content");
+	if (el !== null) {
+		el.classList.add("leftscreen");
+	}
+	else { console.log("!!! el === null"); }
+
+	const projectDiv = document.getElementById(projName);
+	if (projectDiv !== null) {
+		// projectDiv.classList.remove("offscreen");
+		projectDiv.classList.add("focused");
+	}
+	else { console.log("!!! projectDiv === null"); }
+
+	switch (projName) {
+		case "sv100":
+			scene.addModel(sv100);
+			mode = projName
+			break;
+		case "fisheye-calibration":
+			scene.addModel(calibration);
+			calibration.recalculate(scene.gl, 0.5 * Math.PI * window.pageYOffset / window.innerHeight);
+			mode = projName;
+			break;
+	}
+	if (mode != "") {
+		requestAnimationFrame(updateScroll);
+		animationStart = performance.now();
+		requestAnimationFrame(transition);
+	}
+
+	window.scrollTo({ top: layout["project-selection"][0], behavior: "smooth" });
+}
+
+export function restoreProjects(): void {
+	const projectDiv = document.getElementById("projects");
+	if (projectDiv !== null) {
+		const len = projectDiv.children.length;
+		for (let i = 0; i < len; i++) {
+			const el = projectDiv.children[i];
+			if (el.id !== "project-selection") {
+				el.classList.remove("focused");
+				// el.classList.add("offscreen");
+			}
+		}
+	} else {
+		console.log("!!! projectDiv === null");
+	}
+
+	// const el = document.getElementById("project-selection");
+	const el = document.getElementById("content");
+	if (el !== null) {
+		el.classList.remove("leftscreen");
+	} else {
+		console.log("!!! el === null");
+	}
+
+	scene.setView(new Mat4());
+	animationStart = performance.now();
+	if (mode !== "") {
+		requestAnimationFrame(transitionBack);
+	}
+	mode = "";
 }
 
 const loadWasm = async (): Promise<void> => {
-	console.log("loadWasm");
-	const { parseSTL } = await import('../vita-wasm/pkg');
-	console.log("index wasm loaded");
-	// let info: Request = Request();
+	const { parseSTL, parseSTLMesh } = await import('../vita-wasm/pkg');
+
+	let humanLoaded = false;
+	let sv100Loaded = false;
+
 	fetch("untitled.stl").then((value: Response) => {
-		console.log(value);
 		value.arrayBuffer().then((val: ArrayBuffer) => {
 			const arr = new Uint8Array(val);
 			const t1 = performance.now();
-			const err = parseSTL(arr, vertices, normals, vIndices, eIndices);
+			const err = parseSTLMesh(arr, humanFigure.vertices, humanFigure.normals, humanFigure.vIndices, humanFigure.eIndices);
 			const t2 = performance.now();
-			console.log("ParseSTL:");
-			console.log(err);
-			console.log(t2 - t1, "milliseconds");
-			main();
+			console.log("ParseSTLMesh:", err);
+			console.log(t2 - t1, "milliseconds (Human)");
+			if (sv100Loaded) {
+				main();
+			} else {
+				humanLoaded = true;
+			}
 		});
 	});
-};
+
+	fetch("sv100.stl").then((value: Response) => {
+		value.arrayBuffer().then((val: ArrayBuffer) => {
+			const arr = new Uint8Array(val);
+			const t1 = performance.now();
+			const err = parseSTL(arr, sv100Pod.vertices, sv100Pod.normals, sv100Pod.vIndices, sv100Pod.eIndices);
+			const t2 = performance.now();
+			console.log(t2 - t1, "milliseconds (SV100)");
+			console.log("parseSTL:", err);
+			if (humanLoaded) {
+				main();
+			} else {
+				sv100Loaded = true;
+			}
+		});
+	});
+
+	generateSV100(sv100Laser, sv100Manhole, sv100Lights);
+	generateCali(calibrationWall.vertices, calibrationWall.normals, calibrationWall.vIndices);
+}
 
 loadWasm();

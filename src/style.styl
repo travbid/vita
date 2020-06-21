@@ -1,46 +1,81 @@
 
-border-radius()
-	border-radius: arguments
+:root {
+	--contentWidth: 80vmin;
+}
+
+html, body
+	overflow-x hidden
+	position relative
 
 body
-	display: flex
-	margin: 0
-	font: 12px Helvetica, Arial, sans-serif
-	background-color #333;
+	display flex
+	margin 0
+	font-family Helvetica, Arial, sans-serif
+	background-color #333
+	width 100vw
 
-a.button
-	border-radius(5px)
+a:link
+	color #0AF
+
+a:visited
+	color #05A
+
+h2
+	display inline-block
 
 #gl_canvas
-	position: fixed
+	position fixed
+	opacity 0
+	transition opacity 2s
 
 #content
-	margin: 0 auto
-	padding: 0 1em
-	z-index: 5
-	color: #ddd
+	margin 0 auto
+	padding 0 1em
+	z-index 5
+	color #ddd
+	max-width var(--contentWidth)
+	transition transform 1s ease 0s
+	overflow-x visible
 
 .screen
-	background-color: rgba(0,0,0,0.5)
+	background-color rgba(0,0,0,0.625)
+	padding 0em 1em 1em 1em
+	// transition transform 1s ease
+	position relative
+
+.leftscreen
+	transform translateX(-100vw)
+
+.offscreen
+	left 0
+	right 0
+	transform translateX(100vw)
+	position absolute
+	visibility collapse
+	transition visibility 0s 1s
+
+.focused
+	visibility visible
+	transition visibility 0s 0s
 
 .centered
 	height 100vh
-	display: flex;
-	justify-content: center;
-	align-items: center;
+	display flex
+	flex-direction column
+	align-items center
+	padding 0em
 
 .title
 	animation 2s ease 1s forwards fadein
-	opacity 0
+	opacity 0 // Start opacity and fade-in on load
 	text-align center
-	font-size 10vmin
+	font-size 8vmin
+	margin auto 0
 
 .prompt
-	position absolute
 	animation 1s ease 4s forwards fadein
-	opacity 0
-	bottom 0
-	font-size 1.5em;
+	opacity 0 // Start opacity and fade-in after timeout
+	font-size 1em
 
 @keyframes fadein
 	from { opacity: 0; }
@@ -48,6 +83,63 @@ a.button
 
 .spacer
 	height 50vh
+
+#projects
+	position relative
+
+#project-selection
+	background-color transparent
+	display flex
+	flex-wrap wrap
+	justify-content space-between
+	margin 0 -4px 0 -4px
+	padding 0
+
+#project-selection > div
+	background-color rgba(0,0,0,0.625)
+	flex 1 1 0px
+	min-width 35vmin
+	margin 0 4px 8px 4px
+	padding 0em 1em 0em 1em
+
+#project-selection > #projects-title
+	flex 1 1 60%
+
+#projects .clickable
+	cursor pointer
+
+#projects .clickable:hover
+	background-color rgba(0,128,255,0.625)
+
+#projects .clickable:active
+	background-color rgba(128,192,255,0.625)
+
+#project-selection > div
+	display flex
+	flex-direction column
+	justify-content space-between
+
+#mobile-ocr
+	left 0
+	right 0
+	position absolute
+
+.tech-items
+	display table
+	justify-content space-evenly
+
+.tech-items
+	padding 0
+
+.tech-items li
+	display table-row
+
+.tech-items li svg, .tech-items li a, .tech-items li span
+	display table-cell
+
+.tech-items li a, .tech-items li span
+	text-align right
+	padding-right 1em
 
 .contact-list
 	list-style none
@@ -62,3 +154,13 @@ a.button
 
 .contact-list a
 	vertical-align middle
+
+h2 svg
+	fill currentColor
+	height 0.75em
+	width 1em
+
+.screen > a > svg
+	fill currentColor
+	height 0.75em
+	width 1em
