@@ -4,9 +4,7 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v1
       with:
@@ -14,10 +12,11 @@ jobs:
         submodules: true
     - name: Build
       run: |
-        curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-        echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-        sudo apt update
-        sudo apt install yarn
+        rustc --version || echo "no rustc"
+        rustup --version
+        rustup toolchain install stable 1.43.1
+        rustup target list
+        rustup default 1.43.1
         yarn global add wasm-pack # wasm-pack-plugin tries to install this with npm if not present, but npm needs root to install globally, so instead we install upfront with yarn
         yarn install
         yarn build
