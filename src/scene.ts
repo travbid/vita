@@ -38,7 +38,7 @@ export class Scene {
 		gl.enable(gl.BLEND);
 		// gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 
-		const fov = 37.8 * Math.PI / 180.0; // in radians
+		const fov = 30.0 * Math.PI / 180.0; // in radians
 		const canvas = gl.canvas as HTMLCanvasElement;
 		const aspect = canvas.clientWidth / canvas.clientHeight;
 		const zNear = 0.125;
