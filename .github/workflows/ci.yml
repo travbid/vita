@@ -1,6 +1,10 @@
 name: CI
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+      - ci
 
 jobs:
   build:
@@ -15,7 +19,6 @@ jobs:
         rustc --version || echo "no rustc"
         rustup --version
         rustup toolchain install stable 1.43.1
-        rustup target list
         rustup default 1.43.1
         yarn global add wasm-pack # wasm-pack-plugin tries to install this with npm if not present, but npm needs root to install globally, so instead we install upfront with yarn
         yarn install

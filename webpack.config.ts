@@ -6,6 +6,7 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import OptimizeCSSAssetsPlugin from "optimize-css-assets-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
 import WasmPackPlugin from "@wasm-tool/wasm-pack-plugin";
+import TerserPlugin from "terser-webpack-plugin";
 
 const nodeEnv = process.env.NODE_ENV;
 console.log("NODE_ENV:", nodeEnv);
@@ -33,7 +34,10 @@ const config: webpack.Configuration = {
 		// mangleWasmImports: true,
 		// minimize: false,
 		// usedExports: true,
-		minimizer: [new OptimizeCSSAssetsPlugin({})],
+		minimizer: [
+			new OptimizeCSSAssetsPlugin({}),
+			new TerserPlugin({}),
+		],
 	},
 	mode: mode,
 	entry: {
