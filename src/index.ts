@@ -160,10 +160,10 @@ function transition(now: number): void {
 	p = (1.0 - Math.cos(p * Math.PI)) / 2.0;
 	const viewMatrix = new Mat4();
 	viewMatrix.rotate(p * Math.PI, [0, 1, 0]);
-	scene.setView(viewMatrix);
+	scene?.setView(viewMatrix);
 
 	// const rot = 0.5 * Math.PI * window.pageYOffset / window.innerHeight;
-	scene.draw();
+	scene?.draw();
 	if (now - animationStart > period) { return; }
 
 	requestAnimationFrame(transition);
@@ -374,7 +374,7 @@ export function onScroll(): void {
 	// const el = document.getElementById("ontop2");
 }
 
-export function showProject(projName: string): void {
+function showProject(projName: string): void {
 	const el = document.getElementById("content");
 	if (el !== null) {
 		el.classList.add("leftscreen");
@@ -390,11 +390,11 @@ export function showProject(projName: string): void {
 
 	switch (projName) {
 		case "sv100":
-			scene.addModel(sv100);
+			scene?.addModel(sv100);
 			mode = projName
 			break;
 		case "fisheye-calibration":
-			scene.addModel(calibration);
+			scene?.addModel(calibration);
 			calibration.recalculate(scene.gl, 0.5 * Math.PI * window.pageYOffset / window.innerHeight);
 			mode = projName;
 			break;
@@ -408,7 +408,7 @@ export function showProject(projName: string): void {
 	window.scrollTo({ top: layout["project-selection"][0], behavior: "smooth" });
 }
 
-export function restoreProjects(): void {
+function restoreProjects(): void {
 	const projectDiv = document.getElementById("projects");
 	if (projectDiv !== null) {
 		const len = projectDiv.children.length;
@@ -437,6 +437,15 @@ export function restoreProjects(): void {
 		requestAnimationFrame(transitionBack);
 	}
 	mode = "";
+}
+
+export function navigateToProject(projName: string): void {
+	window.history.pushState({}, "", "#" + projName);
+	showProject(projName);
+}
+export function navigateToHome(): void {
+	window.history.pushState({}, "", "/");
+	restoreProjects();
 }
 
 const loadWasm = async (): Promise<void> => {
@@ -480,5 +489,27 @@ const loadWasm = async (): Promise<void> => {
 	generateSV100(sv100Laser, sv100Manhole, sv100Lights);
 	generateCali(calibrationWall.vertices, calibrationWall.normals, calibrationWall.vIndices);
 }
+
+window.onpopstate = function (ev: PopStateEvent): void {
+	ev.preventDefault();
+	if (document.location.hash !== "") {
+		showProject(document.location.hash.substr(1));
+	} else {
+		restoreProjects();
+	}
+}
+
+if ('scrollRestoration' in window.history) {
+	history.scrollRestoration = "manual";
+}
+
+window.onload = (): void => {
+	resizeCanvas();
+	if (document.location.hash !== "") {
+		showProject(document.location.hash.substr(1));
+	}
+}
+
+window.onresize = resizeCanvas;
 
 loadWasm();
