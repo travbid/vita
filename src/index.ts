@@ -15,7 +15,7 @@ import { CalibrationCollection, generate as generateCali } from "./project-items
 // @ts-ignore: An import path cannot end with a '.ts' extension
 import { SV100Collection, generate as generateSV100 } from "./project-items/sv100.ts"
 
-const humanFigure = new MeshModel((2796 + 4) * 1.5, 2796 * 3);
+const humanFigure = new MeshModel((1860 + 4) * 1.5, 1860 * 3);
 const sv100Pod = new MeshModel(522, 348);
 const sv100Laser = new EdgesModel(24);
 const sv100Manhole = new EdgesModel(40);
@@ -454,7 +454,7 @@ const loadWasm = async (): Promise<void> => {
 	let humanLoaded = false;
 	let sv100Loaded = false;
 
-	fetch("untitled.stl").then((value: Response) => {
+	fetch("human.stl").then((value: Response) => {
 		value.arrayBuffer().then((val: ArrayBuffer) => {
 			const arr = new Uint8Array(val);
 			const t1 = performance.now();
