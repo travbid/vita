@@ -56,13 +56,22 @@ export function generate(laser: Model, manhole: Model, lights: Model): void {
 		for (let i = 0; i < n; i++) {
 			const ix = i * 3;
 			const angle = i * (2.0 * Math.PI / n);
-			laser.vertices[ix + 0] = Math.sin(angle) * d;
-			laser.vertices[ix + 1] = 0.21;
-			laser.vertices[ix + 2] = Math.cos(angle) * d;
+			laser.vertices.set([Math.sin(angle) * d, -0.16, Math.cos(angle) * d], ix);
 			laser.eIndices[i * 2 + 0] = i;
 			laser.eIndices[i * 2 + 1] = i + 1;
 		}
 		laser.eIndices[(n * 2) - 1] = 0;
+
+		const ni = 8;
+		const di = 0.025;
+		for (let i = n; i < (n + ni); i++) {
+			const ix = i * 3;
+			const angle = (i - n) * (2.0 * Math.PI / ni);
+			laser.vertices.set([Math.sin(angle) * di, -0.16, Math.cos(angle) * di], ix);
+			laser.eIndices[i * 2 + 0] = i;
+			laser.eIndices[i * 2 + 1] = i + 1;
+		}
+		laser.eIndices[((n + ni) * 2) - 1] = n;
 	}
 	{
 		// Generate manhole

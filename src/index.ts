@@ -16,8 +16,8 @@ import { CalibrationCollection, generate as generateCali } from "./project-items
 import { SV100Collection, generate as generateSV100 } from "./project-items/sv100.ts"
 
 const humanFigure = new MeshModel((2796 + 4) * 1.5, 2796 * 3);
-const sv100Pod = new MeshModel(384, 256);
-const sv100Laser = new EdgesModel(16);
+const sv100Pod = new MeshModel(522, 348);
+const sv100Laser = new EdgesModel(24);
 const sv100Manhole = new EdgesModel(40);
 const sv100Lights = new FacesModel(16);
 const calibrationWall = new FacesModel(13 * 9);
@@ -241,7 +241,7 @@ function updateScroll(): void {
 			const sModelMatrix = new Mat4();
 			// sModelMatrix.rotate(rot / 25.0, [0, 1, 0]);
 			sModelMatrix.rotate((rot - 4.93125) / 12.5, [0, 1, 0]);
-			sModelMatrix.translate(0, (1.0 - 0.211) - (rot / 6.25), 0);
+			sModelMatrix.translate(0, 1.0 - (rot / 6.25), 0);
 			sv100.setMatrix(sModelMatrix);
 			break;
 
