@@ -15,7 +15,7 @@
 	<link rel="icon" type="image/png" href="favicon-196x196.png" sizes="196x196">
 </head>
 
-<body onresize="index.resizeCanvas();" onscroll="index.onScroll()">
+<body onscroll="index.onScroll()">
 
 	<canvas id="gl_canvas" width="100" height="50"></canvas>
 	<script src="bundle-index.js"></script>
@@ -30,9 +30,18 @@
 		<div class="screen" id="work-history">
 			<h2>Work History</h2>
 			<ul>
-				<li>RedZone Robotics: Software Engineer</li>
-				<li>Sphere Identity: Computer Vision Engineer</li>
-				<li>RedZone Robotics: Software Engineer</li>
+				<li>
+					<h3>RedZone Robotics: Software Engineer</h3>
+					<h4>October 2019 - Present</h4>
+				</li>
+				<li>
+					<h3>Sphere Identity: Computer Vision Engineer</h3>
+					<h4>May 2018 - October 2019</h4>
+				</li>
+				<li>
+					<h3>RedZone Robotics: Software Engineer</h3>
+					<h4>June 2016 - May 2018</h4>
+				</li>
 			</ul>
 		</div>
 
@@ -47,7 +56,7 @@
 			 </symbol>
 		 </svg>
 		<div id="projects">
-			<div class="screen offscreen clickable" id="sv100" onclick="index.restoreProjects();">
+			<div class="screen offscreen clickable" id="sv100" onclick="index.navigateToHome();">
 				<h2><svg><use href="#chevronL"/></svg>Manhole Inspection Robot</h2>
 				<h3>RedZone Robotics</h3>
 				<p>
@@ -65,7 +74,7 @@
 					backwards compatibility.
 				</p>
 			</div>
-			<div class="screen offscreen clickable" id="mobile-ocr" onclick="index.restoreProjects();">
+			<div class="screen offscreen clickable" id="mobile-ocr" onclick="index.navigateToHome();">
 				<h2><svg><use href="#chevronL"/></svg>Mobile OCR</h2>
 				<h3>Sphere Identity / Techemy Projects</h3>
 				<p>
@@ -89,7 +98,7 @@
 					</ul>
 				</p>
 			</div>
-			<div class="screen offscreen clickable" id="fisheye-calibration" onclick="index.restoreProjects();">
+			<div class="screen offscreen clickable" id="fisheye-calibration" onclick="index.navigateToHome();">
 				<h2><svg><use href="#chevronL"/></svg>Fisheye Calibration</h2>
 				<h3>RedZone Robotics</h3>
 				<p>
@@ -102,7 +111,7 @@
 					accepted.
 				</p>
 			</div>
-			<div class="screen offscreen clickable" id="md-pod" onclick="index.restoreProjects();">
+			<div class="screen offscreen clickable" id="md-pod" onclick="index.navigateToHome();">
 				<h2><svg><use href="#chevronL"/></svg>Wastewater Pipe Inspection Robot</h2>
 				<h3>RedZone Robotics</h3>
 				<p>
@@ -126,7 +135,7 @@
 					I wrote a C++ encoder / decoder for our custom file format.
 				</p>
 			</div>
-			<div class="screen offscreen clickable" id="cbor-parser" onclick="index.restoreProjects();">
+			<div class="screen offscreen clickable" id="cbor-parser" onclick="index.navigateToHome();">
 				<h2><svg><use href="#chevronL"/></svg>CBOR Parser</h2>
 				<h3>Open Source</h3>
 				<p>
@@ -135,7 +144,7 @@
 					<a>github.com/travbid/cborg</a>
 				</p>
 			</div>
-			<div class="screen offscreen clickable" id="rclgo" onclick="index.restoreProjects();">
+			<div class="screen offscreen clickable" id="rclgo" onclick="index.navigateToHome();">
 				<h2><svg><use href="#chevronL"/></svg>RCLGO</h2>
 				<h3>Open Source</h3>
 				<p>
@@ -148,27 +157,27 @@
 				<div id="projects-title">
 					<h2>Select Projects</h2>
 				</div>
-				<div class="clickable" onclick="index.showProject('sv100')">
+				<div class="clickable" onclick="index.navigateToProject('sv100')">
 					<h2>Manhole Inspection Robot</h2>
 					<h3>RedZone Robotics</h3>
 				</div>
-				<div class="clickable" onclick="index.showProject('mobile-ocr')">
+				<div class="clickable" onclick="index.navigateToProject('mobile-ocr')">
 					<h2>Mobile OCR Library</h2>
 					<h3>Sphere Identity / Techemy Projects</h3>
 					</div>
-				<div class="clickable" onclick="index.showProject('fisheye-calibration')">
+				<div class="clickable" onclick="index.navigateToProject('fisheye-calibration')">
 					<h2>Fisheye Calibration Software</h2>
 					<h3>RedZone Robotics</h3>
 				</div>
-				<div class="clickable" onclick="index.showProject('md-pod')">
+				<div class="clickable" onclick="index.navigateToProject('md-pod')">
 					<h2>Wastewater Pipe Inspection Robot</h2>
 					<h3>RedZone Robotics</h3>
 				</div>
-				<div class="clickable" onclick="index.showProject('cbor-parser')">
+				<div class="clickable" onclick="index.navigateToProject('cbor-parser')">
 					<h2>CBOR Parser</h2>
 					<h3>Open Source</h3>
 				</div>
-				<div class="clickable" onclick="index.showProject('rclgo')">
+				<div class="clickable" onclick="index.navigateToProject('rclgo')">
 					<h2>RCLGO</h2>
 					<h3>Open Source</h3>
 				</div>
@@ -184,32 +193,36 @@
 					<li>
 						<span>C++</span>
 						<svg height="4" width="100">
-							<line x1="0" y1="2" x2="100" y2="2" stroke="#FFF" stroke-width="4" /></svg>
+							<line x1="0" y1="2" x2="100" y2="2" stroke="#FFF" stroke-width="4" />
+						</svg>
 					</li>
 					<li>
 						<a href="https://www.rust-lang.org/" target="_blank" rel="noopener noreferrer">Rust</a>
 						<svg height="4" width="100">
-							<line x1="0" y1="2" x2="90" y2="2" stroke="#FFF" stroke-width="4" /></svg>
+							<line x1="0" y1="2" x2="90" y2="2" stroke="#FFF" stroke-width="4" />
+						</svg>
 					</li>
 					<li>
 						<span>Typescript</span>
 						<svg height="4" width="100">
-							<line x1="0" y1="2" x2="80" y2="2" stroke="#FFF" stroke-width="4" /></svg>
+							<line x1="0" y1="2" x2="80" y2="2" stroke="#FFF" stroke-width="4" />
+						</svg>
 					</li>
 					<li>
 						<a href="https://golang.org/" target="_blank" rel="noopener noreferrer">Golang</a>
 						<svg height="4" width="100">
-							<line x1="0" y1="2" x2="70" y2="2" stroke="#FFF" stroke-width="4" /></svg>
+							<line x1="0" y1="2" x2="70" y2="2" stroke="#FFF" stroke-width="4" />
+						</svg>
 					</li>
 				</ul>
 				<ul>
 					<li>Git</li>
-					<li>Linux</li>
+					<li>Linux (Debian, Arch)</li>
 				</ul>
 				<ul>
 					<li><a href="https://opencv.org/"     target="_blank" rel="noopener noreferrer">OpenCV</a></li>
-					<li><a href="https://vuejs.org/"      target="_blank" rel="noopener noreferrer">Vue JS</a></li>
 					<li><a href="https://tensorflow.org/" target="_blank" rel="noopener noreferrer">Tensorflow</a></li>
+					<li><a href="https://vuejs.org/"      target="_blank" rel="noopener noreferrer">Vue JS</a></li>
 					<li><a href="https://svelte.dev/"     target="_blank" rel="noopener noreferrer">Svelte</a></li>
 				</ul>
 			</div>
