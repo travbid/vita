@@ -15,10 +15,10 @@ body
 	width 100vw
 
 a:link
-	color #0AF
+	color #3CF
 
 a:visited
-	color #05A
+	color #C3F
 
 h2
 	display inline-block
@@ -164,3 +164,13 @@ h2 svg
 	fill currentColor
 	height 0.75em
 	width 1em
+
+ul.two-column
+	columns 2
+
+ul.auto-column
+	display grid
+	grid-template-columns: repeat(auto-fit,minmax(10em, 1fr)); 
+
+ul.auto-column > li
+	display inline-block list-item
