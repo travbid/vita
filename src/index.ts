@@ -178,7 +178,6 @@ function transitionBack(now: number): void {
 	viewMatrix.rotate(p * Math.PI, [0, 1, 0]);
 	scene.setView(viewMatrix);
 
-	// const rot = 0.5 * Math.PI * window.pageYOffset / window.innerHeight;
 	scene.draw();
 	if (now - animationStart > period) {
 		scene.clear();
@@ -197,8 +196,7 @@ function render(now: number): void {
 	// console.log("render:", t2-t1, "ms");
 }
 
-function updateScroll(): void {
-
+function updateLayoutScroll(): void {
 	const pageTop = window.scrollY;
 	const pageBotttom = window.scrollY + window.innerHeight;
 	for (let i = 0; i < ids.length; i++) {
@@ -217,17 +215,16 @@ function updateScroll(): void {
 			}
 			if (0.0 < topProp && topProp < 0.333) {
 				viewEl.style.opacity = (topProp / 0.333).toString();
-				// viewEl.style.transform = "matrix(1,0,0,1,0," + ((0.5 - topProp) * 500).toString() + ")"
 			} else if (0.0 < bottomProp && bottomProp < 0.333) {
 				viewEl.style.opacity = (bottomProp / 0.333).toString();
-				// viewEl.style.transform = "matrix(1,0,0,1,0," + ((bottomProp - 0.5) * 500).toString() + ")"
 			} else {
 				viewEl.style.opacity = "1";
-				// viewEl.style.transform = "matrix(1,0,0,1,0,0)"
 			}
 		}
 	}
+}
 
+function updateModelScroll(): void {
 	const rot = 0.5 * Math.PI * window.pageYOffset / window.innerHeight;
 
 	const hModelMatrix = new Mat4();
@@ -239,7 +236,6 @@ function updateScroll(): void {
 	switch (mode) {
 		case "sv100":
 			const sModelMatrix = new Mat4();
-			// sModelMatrix.rotate(rot / 25.0, [0, 1, 0]);
 			sModelMatrix.rotate((rot - 4.93125) / 12.5, [0, 1, 0]);
 			sModelMatrix.translate(0, 1.0 - (rot / 6.25), 0);
 			sv100.setMatrix(sModelMatrix);
@@ -251,17 +247,25 @@ function updateScroll(): void {
 	}
 }
 
-export function resizeCanvas(): void {
+function updateScroll(): void {
+	updateLayoutScroll();
+	updateModelScroll();
+}
+
+function recalcLayout(): void {
 	// Calculate new div layout
 	const elements = [];
 	for (let i = 0; i < ids.length; i++) {
 		const id = ids[i];
 		const el = document.getElementById(id);
-		if (el === null) { continue; }
+		if (el === null) {
+			console.log("el is null", id);
+			continue;
+		}
 		el.style.transform = "";
 		elements.push(el);
 	}
-	for (let i = 0; i < ids.length; i++) {
+	for (let i = 0; i < elements.length; i++) {
 		const id = ids[i];
 		const el = elements[i];
 		// @ts-ignore
@@ -269,22 +273,78 @@ export function resizeCanvas(): void {
 		// @ts-ignore
 		layout[id][1] = el.offsetHeight;
 	}
+}
 
-	// Hack because innerHeight changes when showing/hiding bottom bar
+function resizeCanvas(): void {
 	if (scene === undefined) { return; }
 
 	scene.gl.canvas.width = window.innerWidth;
 	scene.gl.canvas.height = window.innerHeight;
 
 	scene.reset();
-	requestAnimationFrame(render);
 	requestAnimationFrame(updateScroll);
+	requestAnimationFrame(render);
+}
+
+export function onResize(): void {
+	recalcLayout();
+	resizeCanvas();
+}
+
+const loadWasm = async (gl: WebGLRenderingContext, faceProgram: ProgramInfo, edgeProgram: ProgramInfo): Promise<void> => {
+	const { parseSTL, parseSTLMesh } = await import('../vita-wasm/pkg');
+
+	fetch("human.stl").then((value: Response) => {
+		value.arrayBuffer().then((val: ArrayBuffer) => {
+			const arr = new Uint8Array(val);
+			const t1 = performance.now();
+			const err = parseSTLMesh(arr, humanFigure.vertices, humanFigure.normals, humanFigure.vIndices, humanFigure.eIndices);
+			const t2 = performance.now();
+			console.log(t2 - t1, "milliseconds (Human)");
+			console.log("ParseSTLMesh:", err);
+
+			const hfaceModel = new RenderModel(gl, faceProgram, gl.TRIANGLES, humanFigure.vertices, humanFigure.normals, humanFigure.vIndices, facesFormula);
+			const hedgeModel = new RenderModel(gl, edgeProgram, gl.LINES,     humanFigure.vertices, humanFigure.normals, humanFigure.eIndices, edgesFormula);
+			human.addRenderModel(hfaceModel);
+			human.addRenderModel(hedgeModel);
+			scene.addModel(human);
+
+			requestAnimationFrame(updateModelScroll);
+			requestAnimationFrame(render);
+
+			const canvas: HTMLCanvasElement = document.getElementById("gl_canvas") as HTMLCanvasElement;
+			canvas.style.opacity = "1";
+		});
+	});
+
+	fetch("sv100.stl").then((value: Response) => {
+		value.arrayBuffer().then((val: ArrayBuffer) => {
+			const arr = new Uint8Array(val);
+			const t1 = performance.now();
+			const err = parseSTL(arr, sv100Pod.vertices, sv100Pod.normals, sv100Pod.vIndices, sv100Pod.eIndices);
+			const t2 = performance.now();
+			console.log(t2 - t1, "milliseconds (SV100)");
+			console.log("parseSTL:", err);
+
+			const sfaceModel = new RenderModel(gl, faceProgram, gl.TRIANGLES, sv100Pod.vertices, sv100Pod.normals, sv100Pod.vIndices, facesFormula);
+			const sedgeModel = new RenderModel(gl, edgeProgram, gl.LINES,     sv100Pod.vertices, sv100Pod.normals, sv100Pod.eIndices, edgesFormula);
+			const slaserModel = new RenderModel(gl, edgeProgram, gl.LINES, sv100Laser.vertices, new Float32Array(), sv100Laser.eIndices, laserFormula);
+			const smanholeModel = new RenderModel(gl, edgeProgram, gl.LINES, sv100Manhole.vertices, new Float32Array(), sv100Manhole.eIndices, manholeFormula);
+			const slightModel = new RenderModel(gl, faceProgram, gl.TRIANGLES, sv100Lights.vertices, sv100Lights.normals, sv100Lights.vIndices, lightsFormula);
+			sv100.podFaces = sfaceModel;
+			sv100.podEdges = sedgeModel;
+			sv100.laser = slaserModel;
+			sv100.manhole = smanholeModel;
+			sv100.lights = slightModel;
+		});
+	});
+
+	generateSV100(sv100Laser, sv100Manhole, sv100Lights);
+	generateCali(calibrationWall.vertices, calibrationWall.normals, calibrationWall.vIndices);
 }
 
 function main(): void {
 	const canvas: HTMLCanvasElement = document.getElementById("gl_canvas") as HTMLCanvasElement;
-
-	canvas.style.opacity = "1";
 
 	// Set canvas to fill window
 	canvas.width = window.innerWidth;
@@ -307,7 +367,7 @@ function main(): void {
 	}
 	const shaderProgram: WebGLProgram = tmp;
 
-	const programInfo: ProgramInfo = {
+	const faceProgram: ProgramInfo = {
 		program: shaderProgram,
 		attribLocations: {
 			vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
@@ -327,7 +387,7 @@ function main(): void {
 		return;
 	}
 	const shaderProgram2: WebGLProgram = tmp2;
-	const programInfo2: ProgramInfo = {
+	const edgeProgram: ProgramInfo = {
 		program: shaderProgram2,
 		attribLocations: {
 			vertexPosition: gl.getAttribLocation(shaderProgram2, 'aVertexPosition'),
@@ -341,52 +401,37 @@ function main(): void {
 		},
 	};
 
-	const hfaceModel = new RenderModel(gl, programInfo, gl.TRIANGLES, humanFigure.vertices, humanFigure.normals, humanFigure.vIndices, facesFormula);
-	const hedgeModel = new RenderModel(gl, programInfo2, gl.LINES, humanFigure.vertices, humanFigure.normals, humanFigure.eIndices, edgesFormula);
-	human.addRenderModel(hfaceModel);
-	human.addRenderModel(hedgeModel);
-
-	const sfaceModel = new RenderModel(gl, programInfo, gl.TRIANGLES, sv100Pod.vertices, sv100Pod.normals, sv100Pod.vIndices, facesFormula);
-	const sedgeModel = new RenderModel(gl, programInfo2, gl.LINES, sv100Pod.vertices, sv100Pod.normals, sv100Pod.eIndices, edgesFormula);
-	const slaserModel = new RenderModel(gl, programInfo2, gl.LINES, sv100Laser.vertices, new Float32Array(), sv100Laser.eIndices, laserFormula);
-	const smanholeModel = new RenderModel(gl, programInfo2, gl.LINES, sv100Manhole.vertices, new Float32Array(), sv100Manhole.eIndices, manholeFormula);
-	const slightModel = new RenderModel(gl, programInfo, gl.TRIANGLES, sv100Lights.vertices, sv100Lights.normals, sv100Lights.vIndices, lightsFormula);
-	sv100.podFaces = sfaceModel;
-	sv100.podEdges = sedgeModel;
-	sv100.laser = slaserModel;
-	sv100.manhole = smanholeModel;
-	sv100.lights = slightModel;
-
-	const calibrationModel = new RenderModel(gl, programInfo, gl.TRIANGLES, calibrationWall.vertices, calibrationWall.normals, calibrationWall.vIndices, manholeFormula);
+	const calibrationModel = new RenderModel(gl, faceProgram, gl.TRIANGLES, calibrationWall.vertices, calibrationWall.normals, calibrationWall.vIndices, manholeFormula);
 	calibration.wall = calibrationModel;
 
 	scene = new Scene(gl);
-	scene.addModel(human);
 
-	resizeCanvas();
+	loadWasm(gl, faceProgram, edgeProgram);
 
-	requestAnimationFrame(render);
+	resizeCanvas(); // resizeCanvas calls requestAnimationFrame(render)
 }
 
 export function onScroll(): void {
 	requestAnimationFrame(updateScroll);
 	requestAnimationFrame(render);
-	// const el = document.getElementById("ontop2");
 }
 
 function showProject(projName: string): void {
 	const el = document.getElementById("content");
-	if (el !== null) {
-		el.classList.add("leftscreen");
+	if (el === null) {
+		console.log("!!! el === null");
+		return;
 	}
-	else { console.log("!!! el === null"); }
+
+	el.classList.add("leftscreen");
 
 	const projectDiv = document.getElementById(projName);
-	if (projectDiv !== null) {
-		// projectDiv.classList.remove("offscreen");
-		projectDiv.classList.add("focused");
+	if (projectDiv == null) {
+		console.log("!!! projectDiv === null");
+		return;
 	}
-	else { console.log("!!! projectDiv === null"); }
+
+	projectDiv.classList.add("focused");
 
 	switch (projName) {
 		case "sv100":
@@ -400,7 +445,7 @@ function showProject(projName: string): void {
 			break;
 	}
 	if (mode != "") {
-		requestAnimationFrame(updateScroll);
+		requestAnimationFrame(updateModelScroll);
 		animationStart = performance.now();
 		requestAnimationFrame(transition);
 	}
@@ -448,48 +493,6 @@ export function navigateToHome(): void {
 	restoreProjects();
 }
 
-const loadWasm = async (): Promise<void> => {
-	const { parseSTL, parseSTLMesh } = await import('../vita-wasm/pkg');
-
-	let humanLoaded = false;
-	let sv100Loaded = false;
-
-	fetch("human.stl").then((value: Response) => {
-		value.arrayBuffer().then((val: ArrayBuffer) => {
-			const arr = new Uint8Array(val);
-			const t1 = performance.now();
-			const err = parseSTLMesh(arr, humanFigure.vertices, humanFigure.normals, humanFigure.vIndices, humanFigure.eIndices);
-			const t2 = performance.now();
-			console.log("ParseSTLMesh:", err);
-			console.log(t2 - t1, "milliseconds (Human)");
-			if (sv100Loaded) {
-				main();
-			} else {
-				humanLoaded = true;
-			}
-		});
-	});
-
-	fetch("sv100.stl").then((value: Response) => {
-		value.arrayBuffer().then((val: ArrayBuffer) => {
-			const arr = new Uint8Array(val);
-			const t1 = performance.now();
-			const err = parseSTL(arr, sv100Pod.vertices, sv100Pod.normals, sv100Pod.vIndices, sv100Pod.eIndices);
-			const t2 = performance.now();
-			console.log(t2 - t1, "milliseconds (SV100)");
-			console.log("parseSTL:", err);
-			if (humanLoaded) {
-				main();
-			} else {
-				sv100Loaded = true;
-			}
-		});
-	});
-
-	generateSV100(sv100Laser, sv100Manhole, sv100Lights);
-	generateCali(calibrationWall.vertices, calibrationWall.normals, calibrationWall.vIndices);
-}
-
 window.onpopstate = function (ev: PopStateEvent): void {
 	ev.preventDefault();
 	if (document.location.hash !== "") {
@@ -504,12 +507,12 @@ if ('scrollRestoration' in window.history) {
 }
 
 window.onload = (): void => {
-	resizeCanvas();
+	onResize();
 	if (document.location.hash !== "") {
 		showProject(document.location.hash.substr(1));
 	}
 }
 
-window.onresize = resizeCanvas;
+window.onresize = onResize;
 
-loadWasm();
+main();
