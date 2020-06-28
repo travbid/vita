@@ -325,7 +325,8 @@ const loadWasm = async (gl: WebGLRenderingContext, faceProgram: ProgramInfo, edg
 			const t2 = performance.now();
 			console.log(t2 - t1, "milliseconds (SV100)");
 			console.log("parseSTL:", err);
-
+			
+			generateSV100(sv100Laser, sv100Manhole, sv100Lights);
 			const sfaceModel = new RenderModel(gl, faceProgram, gl.TRIANGLES, sv100Pod.vertices, sv100Pod.normals, sv100Pod.vIndices, facesFormula);
 			const sedgeModel = new RenderModel(gl, edgeProgram, gl.LINES,     sv100Pod.vertices, sv100Pod.normals, sv100Pod.eIndices, edgesFormula);
 			const slaserModel = new RenderModel(gl, edgeProgram, gl.LINES, sv100Laser.vertices, new Float32Array(), sv100Laser.eIndices, laserFormula);
@@ -341,6 +342,8 @@ const loadWasm = async (gl: WebGLRenderingContext, faceProgram: ProgramInfo, edg
 
 	generateSV100(sv100Laser, sv100Manhole, sv100Lights);
 	generateCali(calibrationWall.vertices, calibrationWall.normals, calibrationWall.vIndices);
+	const calibrationModel = new RenderModel(gl, faceProgram, gl.TRIANGLES, calibrationWall.vertices, calibrationWall.normals, calibrationWall.vIndices, manholeFormula);
+	calibration.wall = calibrationModel;
 }
 
 function main(): void {
@@ -400,9 +403,6 @@ function main(): void {
 			normalMatrix: null, // gl.getUniformLocation(shaderProgram2, "uNormalMatrix"),
 		},
 	};
-
-	const calibrationModel = new RenderModel(gl, faceProgram, gl.TRIANGLES, calibrationWall.vertices, calibrationWall.normals, calibrationWall.vIndices, manholeFormula);
-	calibration.wall = calibrationModel;
 
 	scene = new Scene(gl);
 
