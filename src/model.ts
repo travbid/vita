@@ -34,14 +34,13 @@ export class FacesModel {
 export class EdgesModel {
 	public readonly vertices: Float32Array;
 	public readonly eIndices: Uint32Array;
-	constructor(n: number) {
-		this.vertices = new Float32Array(n * 3);
-		this.eIndices = new Uint32Array(n * 2);
+	constructor(nv: number, ne: number) {
+		this.vertices = new Float32Array(nv * 3);
+		this.eIndices = new Uint32Array(ne * 2);
 	}
 }
 
 export interface ModelCollection {
-	setMatrix: (mat: Mat4) => void;
 	setup: (gl: WebGLRenderingContext) => void;
 	draw: (gl: WebGLRenderingContext, viewMatrix: Mat4, projectionMatrix: Mat4) => void;
 }

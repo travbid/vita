@@ -42,7 +42,7 @@ export class Scene {
 		const canvas = gl.canvas as HTMLCanvasElement;
 		const aspect = canvas.clientWidth / canvas.clientHeight;
 		const zNear = 0.125;
-		const zFar = 10.0;
+		const zFar = 20.0;
 		this.projectionMatrix = new Mat4();
 		this.projectionMatrix.perspective(fov, aspect, zNear, zFar);
 	}

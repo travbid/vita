@@ -14,17 +14,24 @@ import { vsSource, fsSource, vsEdgeSource, fsEdgeSource } from "./shaders.ts";
 import { CalibrationCollection, generate as generateCali } from "./project-items/calibration.ts"
 // @ts-ignore: An import path cannot end with a '.ts' extension
 import { SV100Collection, generate as generateSV100 } from "./project-items/sv100.ts"
+// @ts-ignore: An import path cannot end with a '.ts' extension
+import { SuperMDCollection, generateLaser as generateSMDLaser, generateSonar as generateSMDSonar, generatePipe as generateSMDPipe } from "./project-items/supermd.ts"
 
 const humanFigure = new MeshModel((1860 + 4) * 1.5, 1860 * 3);
 const sv100Pod = new MeshModel(522, 348);
-const sv100Laser = new EdgesModel(24);
-const sv100Manhole = new EdgesModel(40);
+const sv100Laser = new EdgesModel(24, 24);
+const sv100Manhole = new EdgesModel(40, 40);
 const sv100Lights = new FacesModel(16);
+const supermdFloat = new MeshModel(3765, 840 * 3);
+const supermdLaser = generateSMDLaser();
+const supermdSonar = generateSMDSonar();
+const supermdPipe = generateSMDPipe();
 const calibrationWall = new FacesModel(13 * 9);
 
 const human = new DefaultCollection();
 const calibration = new CalibrationCollection();
 const sv100 = new SV100Collection();
+const supermd = new SuperMDCollection();
 
 let scene: Scene;
 let animationStart = 0;
@@ -76,6 +83,15 @@ function laserFormula(colours: Float32Array): void {
 		colours[j + 1] = 0.125;
 		colours[j + 2] = 0.125;
 		colours[j + 3] = 1.00;
+	}
+}
+
+function sonarFormula(colours: Float32Array): void {
+	for (let j = 0; j < colours.length; j += 4) {
+		colours[j + 0] = 0.125;
+		colours[j + 1] = 0.125;
+		colours[j + 2] = 1.0;
+		colours[j + 3] = 1.0;
 	}
 }
 
@@ -235,15 +251,33 @@ function updateModelScroll(): void {
 
 	switch (mode) {
 		case "sv100":
-			const sModelMatrix = new Mat4();
-			sModelMatrix.rotate((rot - 4.93125) / 12.5, [0, 1, 0]);
-			sModelMatrix.translate(0, 1.0 - (rot / 6.25), 0);
-			sv100.setMatrix(sModelMatrix);
-			break;
+			{
+				const sModelMatrix = new Mat4();
+				sModelMatrix.rotate((rot - 4.93125) / 12.5, [0, 1, 0]);
+				sModelMatrix.translate(0, 1.0 - (rot / 6.25), 0);
+				sv100.setMatrix(sModelMatrix);
+				break;
+			}
 
 		case "fisheye-calibration":
 			calibration.recalculate(scene.gl, rot);
 			break;
+
+		case "supermd":
+			{
+				const viewMatrix = new Mat4();
+				const modelMatrix = new Mat4();
+
+				viewMatrix.translate(0.67 * rot, 0.0, 0.0);
+				viewMatrix.rotate(((rot * 2.5) - 22.5) * Math.PI / 180.0, [1, 0, 0]);
+				viewMatrix.rotate(rot / 8.0, [0, 1, 0]);
+				viewMatrix.translate(0.0, 0.0, 12.0 + rot / 2);
+
+				modelMatrix.translate(0, 0.0, 2.0 - rot);
+				supermd.setView(viewMatrix);
+				supermd.setModel(modelMatrix);
+				break;
+			}
 	}
 }
 
@@ -304,7 +338,7 @@ const loadWasm = async (gl: WebGLRenderingContext, faceProgram: ProgramInfo, edg
 			console.log("ParseSTLMesh:", err);
 
 			const hfaceModel = new RenderModel(gl, faceProgram, gl.TRIANGLES, humanFigure.vertices, humanFigure.normals, humanFigure.vIndices, facesFormula);
-			const hedgeModel = new RenderModel(gl, edgeProgram, gl.LINES,     humanFigure.vertices, humanFigure.normals, humanFigure.eIndices, edgesFormula);
+			const hedgeModel = new RenderModel(gl, edgeProgram, gl.LINES, humanFigure.vertices, humanFigure.normals, humanFigure.eIndices, edgesFormula);
 			human.addRenderModel(hfaceModel);
 			human.addRenderModel(hedgeModel);
 			scene.addModel(human);
@@ -325,10 +359,10 @@ const loadWasm = async (gl: WebGLRenderingContext, faceProgram: ProgramInfo, edg
 			const t2 = performance.now();
 			console.log(t2 - t1, "milliseconds (SV100)");
 			console.log("parseSTL:", err);
-			
+
 			generateSV100(sv100Laser, sv100Manhole, sv100Lights);
 			const sfaceModel = new RenderModel(gl, faceProgram, gl.TRIANGLES, sv100Pod.vertices, sv100Pod.normals, sv100Pod.vIndices, facesFormula);
-			const sedgeModel = new RenderModel(gl, edgeProgram, gl.LINES,     sv100Pod.vertices, sv100Pod.normals, sv100Pod.eIndices, edgesFormula);
+			const sedgeModel = new RenderModel(gl, edgeProgram, gl.LINES, sv100Pod.vertices, sv100Pod.normals, sv100Pod.eIndices, edgesFormula);
 			const slaserModel = new RenderModel(gl, edgeProgram, gl.LINES, sv100Laser.vertices, new Float32Array(), sv100Laser.eIndices, laserFormula);
 			const smanholeModel = new RenderModel(gl, edgeProgram, gl.LINES, sv100Manhole.vertices, new Float32Array(), sv100Manhole.eIndices, manholeFormula);
 			const slightModel = new RenderModel(gl, faceProgram, gl.TRIANGLES, sv100Lights.vertices, sv100Lights.normals, sv100Lights.vIndices, lightsFormula);
@@ -340,7 +374,28 @@ const loadWasm = async (gl: WebGLRenderingContext, faceProgram: ProgramInfo, edg
 		});
 	});
 
-	generateSV100(sv100Laser, sv100Manhole, sv100Lights);
+	fetch("supermd.stl").then((value: Response) => {
+		value.arrayBuffer().then((val: ArrayBuffer) => {
+			const arr = new Uint8Array(val);
+			const t1 = performance.now();
+			const err = parseSTL(arr, supermdFloat.vertices, supermdFloat.normals, supermdFloat.vIndices, supermdFloat.eIndices);
+			const t2 = performance.now();
+			console.log(t2 - t1, "milliseconds (SuperMD)");
+			console.log("parseSTL:", err);
+
+			const faceModel = new RenderModel(gl, faceProgram, gl.TRIANGLES, supermdFloat.vertices, supermdFloat.normals, supermdFloat.vIndices, facesFormula);
+			const edgeModel = new RenderModel(gl, edgeProgram, gl.LINES, supermdFloat.vertices, supermdFloat.normals, supermdFloat.eIndices, edgesFormula);
+			const laserModel = new RenderModel(gl, edgeProgram, gl.LINES, supermdLaser.vertices, new Float32Array(), supermdLaser.eIndices, laserFormula);
+			const sonarModel = new RenderModel(gl, edgeProgram, gl.LINES, supermdSonar.vertices, new Float32Array(), supermdSonar.eIndices, sonarFormula);
+			const pipeModel = new RenderModel(gl, edgeProgram, gl.LINES, supermdPipe.vertices, new Float32Array(), supermdPipe.eIndices, manholeFormula);
+			supermd.floatFaces = faceModel;
+			supermd.floatEdges = edgeModel;
+			supermd.laser = laserModel;
+			supermd.sonar = sonarModel;
+			supermd.pipe = pipeModel;
+		});
+	});
+
 	generateCali(calibrationWall.vertices, calibrationWall.normals, calibrationWall.vIndices);
 	const calibrationModel = new RenderModel(gl, faceProgram, gl.TRIANGLES, calibrationWall.vertices, calibrationWall.normals, calibrationWall.vIndices, manholeFormula);
 	calibration.wall = calibrationModel;
@@ -442,6 +497,10 @@ function showProject(projName: string): void {
 			scene?.addModel(calibration);
 			calibration.recalculate(scene.gl, 0.5 * Math.PI * window.pageYOffset / window.innerHeight);
 			mode = projName;
+			break;
+		case "supermd":
+			scene?.addModel(supermd);
+			mode = projName
 			break;
 	}
 	if (mode != "") {
