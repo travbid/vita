@@ -5,7 +5,7 @@
 	"main": "index.ts",
 	"repository": "https://gitlab.com/travbid/vita",
 	"author": "Travers <traversbiddle@gmail.com>",
-	"license": "UNLICENSED",
+	"license": "BSD-2-Clause",
 	"dependencies": {},
 	"devDependencies": {
 		"@types/copy-webpack-plugin": "^6.0.0",
