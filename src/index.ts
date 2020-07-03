@@ -244,7 +244,6 @@ function updateModelScroll(): void {
 	const rot = 0.5 * Math.PI * window.pageYOffset / window.innerHeight;
 
 	const hModelMatrix = new Mat4();
-	hModelMatrix.rotate(-Math.PI / 2.0, [1, 0, 0]);
 	hModelMatrix.rotate(rot, [0, 1, 0]);
 	hModelMatrix.translate(0, (rot / 25.0) - 1.6, -0.45);
 	human.setMatrix(hModelMatrix);
