@@ -32,9 +32,11 @@ export class CalibrationCollection implements ModelCollection {
 				this.wall.vertices[(i * 13 + j) * 3 + 0] = dx * m;
 				this.wall.vertices[(i * 13 + j) * 3 + 1] = dy * m;
 			}
-		};
+		}
 		// console.log(calibration.wall.buffer?.position ?? null);
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.wall.buffer!.position);
+		if (this.wall === null) { return; }
+		if (this.wall.buffer === null) { return; }
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.wall.buffer.position);
 		gl.bufferData(gl.ARRAY_BUFFER, this.wall.vertices, gl.STATIC_DRAW);
 	}
 
@@ -48,18 +50,18 @@ export class CalibrationCollection implements ModelCollection {
 		}
 	}
 
-	draw(gl: WebGLRenderingContext, viewMatrix: Mat4, projectionMatrix: Mat4): void {
-		const modelViewMatrix = viewMatrix.multiplied(this.sceneMatrix).multiplied(this.modelMatrix);
+	draw(gl: WebGLRenderingContext, view: Mat4, projection: Mat4): void {
+		const modelViewMatrix = view.multiplied(this.sceneMatrix).multiplied(this.modelMatrix);
 		const normalMatrix: Mat4 = modelViewMatrix.clone();
 		normalMatrix.invert();
 
-		this.wall?.draw(gl, normalMatrix, modelViewMatrix, projectionMatrix);
+		this.wall?.draw(gl, normalMatrix, modelViewMatrix, projection);
 	}
 }
 
-export function generate(vertices: Float32Array, normals: Float32Array, indices: Uint32Array): void {
+export function generate(vertices: Float32Array, normals: Float32Array,
+	indices: Uint32Array): void {
 	// Generate Calibration wall
-	const w = 0.1;
 	for (let i = 0; i < 9; i++) {
 		for (let j = 0; j < 13; j++) {
 			// vertices[(i * 13 + j) * 3 + 0] = (j - 6) * w;
@@ -69,7 +71,8 @@ export function generate(vertices: Float32Array, normals: Float32Array, indices:
 			normals[(i * 13 + j) * 3 + 1] = 0.5;
 			normals[(i * 13 + j) * 3 + 2] = -1.0;
 		}
-	};
+	}
+
 	const arr = new Uint32Array(12 * 8 * 3);
 	let i = 0;
 	for (let jx = 0; jx < 8; jx++) {
@@ -86,5 +89,6 @@ export function generate(vertices: Float32Array, normals: Float32Array, indices:
 			arr[i++] = (jx * 13 + ix) + 13;
 		}
 	}
+
 	indices.set(arr, 0);
 }

@@ -4,9 +4,6 @@ import { Mat4 } from "./matrix.ts";
 import { ModelCollection } from "./model.ts";
 
 export class Scene {
-	// private isPlaying: boolean = true
-	// private then: number = 0;
-	// private pausedAt: number = 0;
 	public gl: WebGLRenderingContext;
 	private projectionMatrix: Mat4 = new Mat4();
 	private models: Array<ModelCollection> = new Array<ModelCollection>();
@@ -64,4 +61,4 @@ export class Scene {
 			this.models[i].draw(this.gl, this.viewMatrix, this.projectionMatrix);
 		}
 	}
-};
+}

@@ -3,13 +3,17 @@
 // If you get the error:
 // "WebAssembly module is included in initial chunk.
 // This is not allowed, because WebAssembly download and compilation must happen asynchronous.
-// Add an async splitpoint (i. e. import()) somewhere between your entrypoint and the WebAssembly module"
+// Add an async splitpoint (i. e. import()) somewhere between your entrypoint
+// and the WebAssembly module"
 // Change your tsconfig to module: esnext
 // Or load the WASM module from a plain Javascript file (non-Typescript)
 let invertMat4: ((arg0: Float64Array) => void) | undefined = undefined;
-let rotateMat4: ((arg0: Float64Array, arg1: number, arg2: Float64Array) => void) | undefined = undefined;
-const loadWasm = async (): Promise<void> => {
-	const { invertMat4x4, rotateMat4x4 } = await import('../vita-wasm/pkg');
+let rotateMat4: (
+	(arg0: Float64Array, arg1: number, arg2: Float64Array) => void
+) | undefined = undefined;
+
+const loadWasm = async(): Promise<void> => {
+	const { invertMat4x4, rotateMat4x4 } = await import("../vita-wasm/pkg");
 	invertMat4 = invertMat4x4;
 	rotateMat4 = rotateMat4x4;
 };
@@ -37,8 +41,8 @@ export class Mat4 {
 		return data;
 	}
 	invert(): void {
-		if (invertMat4 == undefined) { return; }
-		invertMat4(this.m)
+		if (invertMat4 === undefined) { return; }
+		invertMat4(this.m);
 	}
 	multiplied(other: Mat4): Mat4 {
 		const ret = new Float64Array([
@@ -53,7 +57,7 @@ export class Mat4 {
 		ret[1] = (b[1] * m[0]) + (b[5] * m[1]) + (b[9]  * m[2]) + (b[13] * m[3]);
 		ret[2] = (b[2] * m[0]) + (b[6] * m[1]) + (b[10] * m[2]) + (b[14] * m[3]);
 		ret[3] = (b[3] * m[0]) + (b[7] * m[1]) + (b[11] * m[2]) + (b[15] * m[3]);
-	
+
 		ret[4] = (b[0] * m[4]) + (b[4] * m[5]) + (b[8]  * m[6]) + (b[12] * m[7]);
 		ret[5] = (b[1] * m[4]) + (b[5] * m[5]) + (b[9]  * m[6]) + (b[13] * m[7]);
 		ret[6] = (b[2] * m[4]) + (b[6] * m[5]) + (b[10] * m[6]) + (b[14] * m[7]);

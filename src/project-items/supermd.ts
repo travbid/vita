@@ -146,7 +146,7 @@ export function generatePipe(): EdgesModel {
 		pipe.eIndices[(7 * n * 2) + eoff - 1] = (n * 8) + voff -1;
 		pipe.eIndices[(8 * n * 2) + eoff - 1] = (n * 5) + voff -1;
 
-		let ix = 8 * n * 2 + eoff;
+		const ix = 8 * n * 2 + eoff;
 		pipe.eIndices.set([0 + voff, n + voff], ix + 0);
 		pipe.eIndices.set([n*1 + voff, n*3 + voff], ix + 2);
 		pipe.eIndices.set([n*2 + voff, n*4 + voff], ix + 4);

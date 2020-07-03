@@ -1,5 +1,5 @@
 
-export const vsSource: string = `
+export const vsSource = `
 attribute vec4 aVertexPosition;
 attribute vec3 aVertexNormal;
 attribute vec4 aVertexColour;
@@ -27,17 +27,18 @@ void main() {
 }
 `;
 
-export const fsSource: string = `
+export const fsSource = `
 varying lowp vec4 vColour;
 varying highp vec3 vLighting;
 
 void main() {
 	gl_FragColor = vec4(vColour.rgb * vLighting, vColour.a);
+	// gl_FragColor = vColour;
 }
 `;
 
 
-export const vsEdgeSource: string = `
+export const vsEdgeSource = `
 attribute vec4 aVertexPosition;
 // attribute vec3 aVertexNormal;
 attribute vec4 aVertexColour;
@@ -50,12 +51,13 @@ varying lowp vec4 vColour;
 // varying highp vec3 vLighting;
 
 void main() {
-	gl_Position = (uProjectionMatrix * uModelViewMatrix * aVertexPosition) - vec4(0.0, 0.0, 0.00048828125, 0.0);
+	gl_Position = ` +
+	`(uProjectionMatrix * uModelViewMatrix * aVertexPosition) - vec4(0.0, 0.0, 0.00048828125, 0.0);
 	vColour = aVertexColour;
 }
 `;
 
-export const fsEdgeSource: string = `
+export const fsEdgeSource = `
 varying lowp vec4 vColour;
 // varying highp vec3 vLighting;
 

@@ -18,4 +18,4 @@ export interface Buffer {
 	normal: WebGLBuffer;
 	colour: WebGLBuffer;
 	indices: WebGLBuffer;
-};
+}

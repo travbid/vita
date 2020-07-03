@@ -20,7 +20,7 @@ if (nodeEnv === undefined) {
 	nodeMode = nodeEnv;
 } else {
 	console.log("Invalid NODE_ENV:", nodeEnv);
-	console.log('NODE_ENV must be "developemnt", "production" or "none"');
+	console.log("NODE_ENV must be \"developemnt\", \"production\" or \"none\"");
 	throw 1;
 }
 
@@ -51,7 +51,7 @@ const config: webpack.Configuration = {
 		libraryTarget: "window",
 	},
 	performance: {
-		hints: process.env.NODE_ENV === 'production' ? "warning" : false
+		hints: process.env.NODE_ENV === "production" ? "warning" : false,
 	},
 	plugins: [
 		new WasmPackPlugin({
@@ -64,7 +64,7 @@ const config: webpack.Configuration = {
 				{ context: "src/icons", from: "*.png" },
 				{ context: "src/icons", from: "*.svg" },
 				{ context: "src/assets", from: "*.*" },
-			]
+			],
 		}),
 		new MiniCssExtractPlugin({
 			// Options similar to the same options in webpackOptions.output
@@ -81,9 +81,9 @@ const config: webpack.Configuration = {
 				loader: "ts-loader",
 				options: {
 					// configFile: "tsconfig.json"
-				}
+				},
 			}],
-			exclude: /node_modules/
+			exclude: /node_modules/,
 		}, {
 			test: /\.(css|styl)$/,
 			use: [
@@ -100,7 +100,7 @@ const config: webpack.Configuration = {
 				"css-loader",
 				"stylus-loader",
 			],
-		}]
+		}],
 	},
 };
 

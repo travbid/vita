@@ -153,8 +153,6 @@ export function generate(laser: Model, manhole: Model, lights: Model): void {
 			-far, -lg, lg,
 		], 0);
 
-		const magA = 0.4;
-		const magB = 0.6;
 		lights.normals.set([
 			-0.5, 0.0, -0.5, -0.5, 0.0, -0.5,
 			-0.5, 0.5, 0.0, -0.5, 0.5, 0.0,

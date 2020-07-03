@@ -11,7 +11,9 @@ export class RenderModel {
 	private readonly mode: number;
 	private readonly numIndices: number = 0;
 
-	constructor(gl: WebGLRenderingContext, programInfo: ProgramInfo, mode: number, vertices: Float32Array, normals: Float32Array, indices: Uint32Array, colourFormula: (arg0: Float32Array) => void) {
+	constructor(gl: WebGLRenderingContext, programInfo: ProgramInfo, mode: number,
+		vertices: Float32Array, normals: Float32Array, indices: Uint32Array,
+		colourFormula: (arg0: Float32Array) => void) {
 		this.programInfo = programInfo;
 		this.vertices = vertices;
 		this.normals = normals;
@@ -20,7 +22,8 @@ export class RenderModel {
 		this.numIndices = indices.length;
 	}
 
-	private initBuffers(gl: WebGLRenderingContext, indices: Uint32Array, colourFormula: (arg0: Float32Array) => void): Buffer | null {
+	private initBuffers(gl: WebGLRenderingContext, indices: Uint32Array,
+		colourFormula: (arg0: Float32Array) => void): Buffer | null {
 		const positionBuffer: WebGLBuffer | null = gl.createBuffer();
 		if (positionBuffer === null) {
 			console.log("gl.createBuffer() returned null");
@@ -131,17 +134,19 @@ export class RenderModel {
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
 	}
 
-	draw(gl: WebGLRenderingContext, normalMatrix: Mat4, modelViewMatrix: Mat4, projMat: Mat4): void {
+	draw(gl: WebGLRenderingContext, normalMatrix: Mat4, modelViewMatrix: Mat4,
+		projMat: Mat4): void {
 		gl.useProgram(this.programInfo.program);
 		this.setup(gl);
 
-		gl.uniformMatrix4fv(this.programInfo.uniformLocations.projectionMatrix, false, projMat.transposed());
-		if (this.programInfo.uniformLocations.normalMatrix !== null) {
-			gl.uniformMatrix4fv(this.programInfo.uniformLocations.normalMatrix, false, normalMatrix.data());
+		const uniforms = this.programInfo.uniformLocations;
+		gl.uniformMatrix4fv(uniforms.projectionMatrix, false, projMat.transposed());
+		if (uniforms.normalMatrix !== null) {
+			gl.uniformMatrix4fv(uniforms.normalMatrix, false, normalMatrix.data());
 		}
-		gl.uniformMatrix4fv(this.programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix.transposed());
+		gl.uniformMatrix4fv(uniforms.modelViewMatrix, false, modelViewMatrix.transposed());
 
 		const offset = 0;
 		gl.drawElements(this.mode, this.numIndices, gl.UNSIGNED_SHORT, offset);
 	}
-};
+}
