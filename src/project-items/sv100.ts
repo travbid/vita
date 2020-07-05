@@ -19,7 +19,7 @@ export class SV100Collection implements ModelCollection {
 	public lights: RenderModel | null = null;
 
 	constructor() {
-		this.sceneMatrix.translate(0, 0.0, 2.5);
+		this.sceneMatrix.translate(0.0, 0.0, 2.5);
 	}
 
 	setMatrix(mat: Mat4): void {
@@ -56,7 +56,7 @@ export function generate(laser: Model, manhole: Model, lights: Model): void {
 		for (let i = 0; i < n; i++) {
 			const ix = i * 3;
 			const angle = i * (2.0 * Math.PI / n);
-			laser.vertices.set([Math.sin(angle) * d, -0.16, Math.cos(angle) * d], ix);
+			laser.vertices.set([Math.sin(angle) * d, 0.21, Math.cos(angle) * d], ix);
 			laser.eIndices[i * 2 + 0] = i;
 			laser.eIndices[i * 2 + 1] = i + 1;
 		}
@@ -67,7 +67,7 @@ export function generate(laser: Model, manhole: Model, lights: Model): void {
 		for (let i = n; i < (n + ni); i++) {
 			const ix = i * 3;
 			const angle = (i - n) * (2.0 * Math.PI / ni);
-			laser.vertices.set([Math.sin(angle) * di, -0.16, Math.cos(angle) * di], ix);
+			laser.vertices.set([Math.sin(angle) * di, 0.21, Math.cos(angle) * di], ix);
 			laser.eIndices[i * 2 + 0] = i;
 			laser.eIndices[i * 2 + 1] = i + 1;
 		}

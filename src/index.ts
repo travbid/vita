@@ -21,8 +21,6 @@ import {
 	// @ts-ignore: An import path cannot end with a '.ts' extension
 	generatePipe as generateSMDPipe } from "./project-items/supermd.ts";
 
-const humanFigure = new MeshModel((1860 + 4) * 1.5, 1860 * 3);
-
 const human = new DefaultCollection();
 const calibration = new CalibrationCollection();
 const sv100 = new SV100Collection();
@@ -253,7 +251,7 @@ function updateModelScroll(): void {
 	{
 		const sModelMatrix = new Mat4();
 		sModelMatrix.rotate((rot - 4.93125) / 12.5, [0, 1, 0]);
-		sModelMatrix.translate(0, 1.0 - (rot / 6.25), 0);
+		sModelMatrix.translate(0, (1.0 - 0.211) - (rot / 6.25), 0);
 		sv100.setMatrix(sModelMatrix);
 		break;
 	}
@@ -334,6 +332,7 @@ const loadWasm = async(
 	fetch("human.stl").then((value: Response) => {
 		value.arrayBuffer().then((val: ArrayBuffer) => {
 			const arr = new Uint8Array(val);
+			const humanFigure = new MeshModel((1860 + 4) * 1.5, 1860 * 3, 1860 * 3);
 			const t1 = performance.now();
 			const err = parseSTLMesh(arr, humanFigure.vertices, humanFigure.normals,
 				humanFigure.vIndices, humanFigure.eIndices);
@@ -360,7 +359,7 @@ const loadWasm = async(
 	fetch("sv100.stl").then((value: Response) => {
 		value.arrayBuffer().then((val: ArrayBuffer) => {
 			const arr = new Uint8Array(val);
-			const sv100Pod = new MeshModel(522, 348);
+			const sv100Pod = new MeshModel(384, 228, 256);
 			const t1 = performance.now();
 			const err = parseSTL(arr, sv100Pod.vertices, sv100Pod.normals, sv100Pod.vIndices,
 				sv100Pod.eIndices);
@@ -395,7 +394,7 @@ const loadWasm = async(
 		value.arrayBuffer().then((val: ArrayBuffer) => {
 			const arr = new Uint8Array(val);
 
-			const supermdFloat = new MeshModel(3765, 840 * 3);
+			const supermdFloat = new MeshModel(3765, 2232, 2520);
 			const t1 = performance.now();
 			const err = parseSTL(arr, supermdFloat.vertices, supermdFloat.normals,
 				supermdFloat.vIndices, supermdFloat.eIndices);

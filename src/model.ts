@@ -11,11 +11,11 @@ export class MeshModel {
 	public readonly eIndices: Uint32Array;
 	public readonly count: number;
 
-	constructor(numVertices: number, numIndices: number) {
+	constructor(numVertices: number, numVIndices: number, numEIndices: number) {
 		this.vertices = new Float32Array(numVertices);
 		this.normals = new Float32Array(numVertices);
-		this.vIndices = new Uint32Array(numIndices);
-		this.eIndices = new Uint32Array(numIndices);
+		this.vIndices = new Uint32Array(numVIndices);
+		this.eIndices = new Uint32Array(numEIndices);
 		this.count = numVertices;
 	}
 }
