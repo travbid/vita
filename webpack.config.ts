@@ -3,7 +3,7 @@ import path from "path";
 import webpack from "webpack";
 
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import OptimizeCSSAssetsPlugin from "optimize-css-assets-webpack-plugin";
+import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 import CopyPlugin from "copy-webpack-plugin";
 import WasmPackPlugin from "@wasm-tool/wasm-pack-plugin";
 import TerserPlugin from "terser-webpack-plugin";
@@ -35,7 +35,7 @@ const config: webpack.Configuration = {
 		// minimize: false,
 		// usedExports: true,
 		minimizer: [
-			new OptimizeCSSAssetsPlugin({}),
+			new CssMinimizerPlugin(),
 			new TerserPlugin({}),
 		],
 	},
@@ -52,6 +52,9 @@ const config: webpack.Configuration = {
 	},
 	performance: {
 		hints: process.env.NODE_ENV === "production" ? "warning" : false,
+	},
+	experiments: {
+		asyncWebAssembly: true
 	},
 	plugins: [
 		new WasmPackPlugin({
@@ -93,7 +96,6 @@ const config: webpack.Configuration = {
 						// You can specify a publicPath here
 						// by default it uses publicPath in webpackOptions.output
 						publicPath: "../",
-						hmr: process.env.NODE_ENV === "development",
 					},
 				},
 				// "style-loader",
