@@ -48,6 +48,15 @@ const layout = {
 
 let mode = "";
 
+function humanFacesFormula(colours: Float32Array): void {
+	for (let j = 0; j < colours.length * 4; j += 4) {
+		colours[j + 0] = 0.5;
+		colours[j + 1] = 0.9;
+		colours[j + 2] = 1.0;
+		colours[j + 3] = 1.0;
+	}
+}
+
 function facesFormula(colours: Float32Array): void {
 	for (let j = 0; j < colours.length * 4; j += 4) {
 		colours[j + 0] = 0.0625;
@@ -59,9 +68,9 @@ function facesFormula(colours: Float32Array): void {
 
 function edgesFormula(colours: Float32Array): void {
 	for (let j = 0; j < colours.length * 4; j += 4) {
-		colours[j + 0] = 0.25;
-		colours[j + 1] = 0.25;
-		colours[j + 2] = 0.25;
+		colours[j + 0] = 0.35;
+		colours[j + 1] = 0.35;
+		colours[j + 2] = 0.35;
 		colours[j + 3] = 1.00;
 	}
 }
@@ -337,7 +346,7 @@ const loadWasm = async(
 			console.log("ParseSTLMesh:", err);
 
 			const hfaceModel = new RenderModel(gl, faceProgram, gl.TRIANGLES, humanFigure.vertices,
-				humanFigure.normals, humanFigure.vIndices, facesFormula);
+				humanFigure.normals, humanFigure.vIndices, humanFacesFormula);
 			const hedgeModel = new RenderModel(gl, edgeProgram, gl.LINES, humanFigure.vertices,
 				humanFigure.normals, humanFigure.eIndices, edgesFormula);
 			human.addRenderModel(hfaceModel);

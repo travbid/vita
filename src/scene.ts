@@ -27,7 +27,7 @@ export class Scene {
 	setup(): void {
 		const gl = this.gl;
 
-		gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 		gl.clearColor(0.2, 0.2, 0.2, 1.0);  // Clear to grey, fully opaque
 		// gl.colorMask(false, false, false, true);
 		gl.clearDepth(1.0);                 // Clear everything
