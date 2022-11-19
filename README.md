@@ -7,12 +7,12 @@ git submodule update --init --recursive
 
 ## Build
 ```bash
-yarn install
-yarn build
+npm install
+npm run build
 ```
 
 ## Development
 ```bash
-yarn install
-yarn dev
+npm install
+npm run dev
 ```

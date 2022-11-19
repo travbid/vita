@@ -6,7 +6,6 @@
 	"repository": "https://gitlab.com/travbid/vita",
 	"author": "Travers <traversbiddle@gmail.com>",
 	"license": "BSD-2-Clause",
-	"dependencies": {},
 	"devDependencies": {
 		"@types/copy-webpack-plugin": "^6.0.0",
 		"@types/mini-css-extract-plugin": "^0.9.1",

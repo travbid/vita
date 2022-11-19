@@ -20,6 +20,6 @@ jobs:
         rustup --version
         rustup toolchain install stable 1.43.1
         rustup default 1.43.1
-        yarn global add wasm-pack # wasm-pack-plugin tries to install this with npm if not present, but npm needs root to install globally, so instead we install upfront with yarn
-        yarn install
-        yarn build
+        npm global add wasm-pack # wasm-pack-plugin tries to install this with npm if not present, but npm needs root to install globally, so instead we install upfront with npm
+        npm install
+        npm build
