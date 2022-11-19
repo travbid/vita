@@ -54,7 +54,7 @@ const config: webpack.Configuration = {
 		hints: process.env.NODE_ENV === "production" ? "warning" : false,
 	},
 	experiments: {
-		asyncWebAssembly: true
+		asyncWebAssembly: true,
 	},
 	plugins: [
 		new WasmPackPlugin({
