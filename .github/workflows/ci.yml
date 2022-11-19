@@ -18,8 +18,8 @@ jobs:
       run: |
         rustc --version || echo "no rustc"
         rustup --version
-        rustup toolchain install stable 1.43.1
-        rustup default 1.43.1
-        npm global add wasm-pack # wasm-pack-plugin tries to install this with npm if not present, but npm needs root to install globally, so instead we install upfront with npm
+        rustup toolchain install stable 1.65.0
+        rustup default 1.65.0
+        npm add --global wasm-pack # wasm-pack-plugin tries to install this with npm if not present, but npm needs root to install globally, so instead we install upfront with npm
         npm install
-        npm build
+        npm run build
