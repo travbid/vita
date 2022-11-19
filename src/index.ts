@@ -35,8 +35,6 @@ const ids = [
 	"project-selection",
 	"tech-tools",
 	"education",
-	"interests",
-	"brag",
 	// "contact",
 ];
 const layout = {
@@ -45,8 +43,6 @@ const layout = {
 	"project-selection": [0, 0],
 	"tech-tools": [0, 0],
 	"education": [0, 0],
-	"interests": [0, 0],
-	"brag": [0, 0],
 	// "contact": [0, 0],
 };
 
