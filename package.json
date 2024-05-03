@@ -29,9 +29,9 @@
 		"ts-loader": "^9.4.1",
 		"ts-node": "^10.9.1",
 		"typescript": "^5.4.5",
-		"webpack": "^5.75.0",
-		"webpack-cli": "^5.0.0",
-		"webpack-dev-server": "^4.11.1"
+		"webpack": "^5.91.0",
+		"webpack-cli": "^5.1.4",
+		"webpack-dev-server": "^4.15.2"
 	},
 	"scripts": {
 		"build": "NODE_ENV=production node node_modules/.bin/webpack --config webpack.config.ts",
