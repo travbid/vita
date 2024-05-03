@@ -5,6 +5,11 @@ on:
     branches:
       - master
       - ci
+    paths-ignore:
+      - '**.md'  # Ignore README changes
+  pull_request:
+    paths-ignore:
+      - '**.md'
 
 jobs:
   build:
