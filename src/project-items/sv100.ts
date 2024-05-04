@@ -1,7 +1,7 @@
 // @ts-ignore: An import path cannot end with a '.ts' extension
 import { Mat4 } from "../matrix.ts";
 // @ts-ignore: An import path cannot end with a '.ts' extension
-import { Model, ModelCollection } from "../model.ts";
+import { FacesModel, EdgesModel, ModelCollection } from "../model.ts";
 // @ts-ignore: An import path cannot end with a '.ts' extension
 import { RenderModel } from "../render_model.ts";
 
@@ -48,7 +48,7 @@ export class SV100Collection implements ModelCollection {
 	}
 }
 
-export function generate(laser: Model, manhole: Model, lights: Model): void {
+export function generate(laser: EdgesModel, manhole: EdgesModel, lights: FacesModel): void {
 	{
 		// Generate laser ring edges
 		const d = 0.5; // Diameter in metres
