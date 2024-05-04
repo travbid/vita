@@ -54,7 +54,7 @@ const config: webpack.Configuration = {
 		hints: process.env.NODE_ENV === "production" ? "warning" : false,
 	},
 	resolve: {
-		extensions: ['.ts', '.js', '.json']
+		extensions: [".ts", ".js", ".json"],
 	},
 	experiments: {
 		asyncWebAssembly: true,
