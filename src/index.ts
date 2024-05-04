@@ -20,21 +20,22 @@ const supermd = new SuperMDCollection();
 let scene: Scene;
 let animationStart = 0;
 
-const ids = [
-	"title",
-	"work-history",
-	"project-selection",
-	"tech-tools",
-	"education",
-	// "contact",
-];
+enum LayoutId {
+	Title = "title",
+	WorkHistory = "work-history",
+	ProjectSelection = "project-selection",
+	TechTools = "tech-tools",
+	Education = "education",
+	// Contact = "contact",
+}
+
 const layout = {
-	"title": [0, 0],
-	"work-history": [0, 0],
-	"project-selection": [0, 0],
-	"tech-tools": [0, 0],
-	"education": [0, 0],
-	// "contact": [0, 0],
+	[LayoutId.Title]: [0, 0],
+	[LayoutId.WorkHistory]: [0, 0],
+	[LayoutId.ProjectSelection]: [0, 0],
+	[LayoutId.TechTools]: [0, 0],
+	[LayoutId.Education]: [0, 0],
+	// [LayoutId.Contact]: [0, 0],
 };
 
 let mode = "";
@@ -209,10 +210,7 @@ function render(): void {
 function updateLayoutScroll(): void {
 	const pageTop = window.scrollY;
 	const pageBotttom = window.scrollY + window.innerHeight;
-	for (let i = 0; i < ids.length; i++) {
-		const id = ids[i];
-		// @ts-ignore
-		const elLayout = layout[id];
+	for (const [id, elLayout] of Object.entries(layout)) {
 		const elTop = elLayout[0];
 		const elBottom = elLayout[0] + elLayout[1];
 		if (pageBotttom > elTop && pageTop < elBottom) {
@@ -281,24 +279,20 @@ function updateScroll(): void {
 
 function recalcLayout(): void {
 	// Calculate new div layout
-	const elements = [];
-	for (let i = 0; i < ids.length; i++) {
-		const id = ids[i];
+	const elements: {[key: string]: HTMLElement} = {};
+	for (const id in layout) {
 		const el = document.getElementById(id);
 		if (el === null) {
 			console.log("el is null", id);
 			continue;
 		}
 		el.style.transform = "";
-		elements.push(el);
+		elements[id] = el;
 	}
-	for (let i = 0; i < elements.length; i++) {
-		const id = ids[i];
-		const el = elements[i];
-		// @ts-ignore
-		layout[id][0] = window.pageYOffset + el.getBoundingClientRect().top;
-		// @ts-ignore
-		layout[id][1] = el.offsetHeight;
+	for (const [id, arr] of Object.entries(layout)) {
+		const el = elements[id];
+		arr[0] = window.scrollY + el.getBoundingClientRect().top;
+		arr[1] = el.offsetHeight;
 	}
 }
 
@@ -535,7 +529,7 @@ function showProject(projName: string): void {
 		requestAnimationFrame(transition);
 	}
 
-	window.scrollTo({ top: layout["project-selection"][0], behavior: "smooth" });
+	window.scrollTo({ top: layout[LayoutId.ProjectSelection][0], behavior: "smooth" });
 }
 
 function restoreProjects(): void {
