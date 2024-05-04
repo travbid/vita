@@ -1,7 +1,5 @@
-// @ts-ignore: An import path cannot end with a '.ts' extension
-import { Mat4 } from "./matrix.ts";
-// @ts-ignore: An import path cannot end with a '.ts' extension
-import { ModelCollection } from "./model.ts";
+import { Mat4 } from "./matrix";
+import { ModelCollection } from "./model";
 
 export class Scene {
 	public gl: WebGLRenderingContext;
