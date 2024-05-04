@@ -21,20 +21,20 @@ let scene: Scene;
 let animationStart = 0;
 
 enum LayoutId {
-	Title = "title",
-	WorkHistory = "work-history",
-	ProjectSelection = "project-selection",
-	TechTools = "tech-tools",
-	Education = "education",
-	// Contact = "contact",
+	title = "title",
+	workHistory = "work-history",
+	projectSelection = "project-selection",
+	techTools = "tech-tools",
+	education = "education",
+	// contact = "contact",
 }
 
 const layout = {
-	[LayoutId.Title]: [0, 0],
-	[LayoutId.WorkHistory]: [0, 0],
-	[LayoutId.ProjectSelection]: [0, 0],
-	[LayoutId.TechTools]: [0, 0],
-	[LayoutId.Education]: [0, 0],
+	[LayoutId.title]: [0, 0],
+	[LayoutId.workHistory]: [0, 0],
+	[LayoutId.projectSelection]: [0, 0],
+	[LayoutId.techTools]: [0, 0],
+	[LayoutId.education]: [0, 0],
 	// [LayoutId.Contact]: [0, 0],
 };
 
@@ -510,16 +510,16 @@ function showProject(projName: string): void {
 
 	switch (projName) {
 	case "sv100":
-			scene?.addModel(sv100);
+		scene?.addModel(sv100);
 		mode = projName;
 		break;
 	case "fisheye-calibration":
-			scene?.addModel(calibration);
+		scene?.addModel(calibration);
 		calibration.recalculate(scene.gl, 0.5 * Math.PI * window.pageYOffset / window.innerHeight);
 		mode = projName;
 		break;
 	case "supermd":
-			scene?.addModel(supermd);
+		scene?.addModel(supermd);
 		mode = projName;
 		break;
 	}
@@ -529,7 +529,7 @@ function showProject(projName: string): void {
 		requestAnimationFrame(transition);
 	}
 
-	window.scrollTo({ top: layout[LayoutId.ProjectSelection][0], behavior: "smooth" });
+	window.scrollTo({ top: layout[LayoutId.projectSelection][0], behavior: "smooth" });
 }
 
 function restoreProjects(): void {
