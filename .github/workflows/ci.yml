@@ -12,8 +12,24 @@ on:
       - '**.md'
 
 jobs:
-  build:
+  build-ubuntu:
     runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.CITOKEN_SECRET }}
+        submodules: true
+    - name: Build
+      run: |
+        rustc --version || echo "no rustc"
+        rustup --version
+        node --version
+        npm --version
+        npm install
+        npm run build
+
+  build-windows:
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
       with:
