@@ -7,10 +7,7 @@
 	"author": "Travers <traversbiddle@gmail.com>",
 	"license": "BSD-2-Clause",
 	"devDependencies": {
-		"@types/copy-webpack-plugin": "^10.1.0",
-		"@types/mini-css-extract-plugin": "^2.5.1",
 		"@types/node": "^18.11.9",
-		"@types/terser-webpack-plugin": "^5.2.0",
 		"@types/webpack": "^5.28.0",
 		"@wasm-tool/wasm-pack-plugin": "^1.6.0",
 		"copy-webpack-plugin": "^11.0.0",
