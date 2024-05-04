@@ -12,7 +12,7 @@
 		"@wasm-tool/wasm-pack-plugin": "^1.6.0",
 		"copy-webpack-plugin": "^11.0.0",
 		"css-loader": "^6.7.2",
-		"css-minimizer-webpack-plugin": "^4.2.2",
+		"css-minimizer-webpack-plugin": "^6.0.0",
 		"eslint": "^8.57.0",
 		"mini-css-extract-plugin": "^2.7.0",
 		"stylus": "^0.59.0",
