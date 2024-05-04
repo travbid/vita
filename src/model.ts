@@ -1,8 +1,6 @@
-// @ts-ignore: An import path cannot end with a '.ts' extension
-import { Mat4 } from "./matrix.ts";
+import { Mat4 } from "./matrix";
 
-// @ts-ignore: An import path cannot end with a '.ts' extension
-import { RenderModel } from "./render_model.ts";
+import { RenderModel } from "./render_model";
 
 export class MeshModel {
 	public readonly vertices: Float32Array;

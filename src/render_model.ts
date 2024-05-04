@@ -1,7 +1,5 @@
-// @ts-ignore: An import path cannot end with a '.ts' extension
-import { ProgramInfo, Buffer } from "./interfaces.ts";
-// @ts-ignore: An import path cannot end with a '.ts' extension
-import { Mat4 } from "./matrix.ts";
+import { ProgramInfo, Buffer } from "./interfaces";
+import { Mat4 } from "./matrix";
 
 export class RenderModel {
 	private readonly programInfo: ProgramInfo;

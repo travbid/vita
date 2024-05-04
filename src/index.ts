@@ -1,25 +1,16 @@
-// @ts-ignore: An import path cannot end with a '.ts' extension
-import { ProgramInfo } from "./interfaces.ts";
-// @ts-ignore: An import path cannot end with a '.ts' extension
-import { Mat4 } from "./matrix.ts";
-// @ts-ignore: An import path cannot end with a '.ts' extension
-import { DefaultCollection, EdgesModel, FacesModel, MeshModel } from "./model.ts";
-// @ts-ignore: An import path cannot end with a '.ts' extension
-import { RenderModel } from "./render_model.ts";
-// @ts-ignore: An import path cannot end with a '.ts' extension
-import { Scene } from "./scene.ts";
-// @ts-ignore: An import path cannot end with a '.ts' extension
-import { vsSource, fsSource, vsEdgeSource, fsEdgeSource } from "./shaders.ts";
-// @ts-ignore: An import path cannot end with a '.ts' extension
-import { CalibrationCollection, generate as generateCali } from "./project-items/calibration.ts";
-// @ts-ignore: An import path cannot end with a '.ts' extension
-import { SV100Collection, generate as generateSV100 } from "./project-items/sv100.ts";
+import { ProgramInfo } from "./interfaces";
+import { Mat4 } from "./matrix";
+import { DefaultCollection, EdgesModel, FacesModel, MeshModel } from "./model";
+import { RenderModel } from "./render_model";
+import { Scene } from "./scene";
+import { vsSource, fsSource, vsEdgeSource, fsEdgeSource } from "./shaders";
+import { CalibrationCollection, generate as generateCali } from "./project-items/calibration";
+import { SV100Collection, generate as generateSV100 } from "./project-items/sv100";
 import {
 	SuperMDCollection,
 	generateLaser as generateSMDLaser,
 	generateSonar as generateSMDSonar,
-	// @ts-ignore: An import path cannot end with a '.ts' extension
-	generatePipe as generateSMDPipe } from "./project-items/supermd.ts";
+	generatePipe as generateSMDPipe } from "./project-items/supermd";
 
 const human = new DefaultCollection();
 const calibration = new CalibrationCollection();
