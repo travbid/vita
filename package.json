@@ -15,7 +15,7 @@
 		"css-minimizer-webpack-plugin": "^6.0.0",
 		"eslint": "^8.57.0",
 		"mini-css-extract-plugin": "^2.9.0",
-		"stylus": "^0.59.0",
+		"stylus": "^0.63.0",
 		"stylus-loader": "^8.1.0",
 		"ts-loader": "^9.5.1",
 		"ts-node": "^10.9.2",
