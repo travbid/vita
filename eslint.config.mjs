@@ -1,18 +1,13 @@
 // @ts-check
+/* eslint @typescript-eslint/naming-convention: 0 */
 
-import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
+import eslint from "@eslint/js";
+import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  eslint.configs.recommended,
-  ...tseslint.configs.recommended,
+	eslint.configs.recommended,
+	...tseslint.configs.recommended,
 	{
-		// plugins: { "@typescript-eslint": {} },
-		// extends: [
-		// 	"eslint:recommended",
-		// 	"plugin:@typescript-eslint/eslint-recommended",
-		// 	"plugin:@typescript-eslint/recommended",
-		// ],
 		languageOptions: {
 			ecmaVersion: 2022,
 		},
@@ -45,17 +40,5 @@ export default tseslint.config(
 			"space-before-blocks": ["warn", "always"],
 			"space-before-function-paren": ["warn", "never"],
 		},
-		// overrides: [
-		// 	{
-		// 		files: [
-		// 			"**/.*", // Un-ignore dotfiles
-		// 			"**/__tests__/*.{j,t}s?(x)",
-		// 			"**/tests/unit/**/*.spec.{j,t}s?(x)",
-		// 		],
-		// 		env: {
-		// 			mocha: true,
-		// 		},
-		// 	},
-		// ],
-	}
+	},
 );
