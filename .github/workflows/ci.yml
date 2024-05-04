@@ -28,3 +28,16 @@ jobs:
         npm add --global wasm-pack # wasm-pack-plugin tries to install this with npm if not present, but npm needs root to install globally, so instead we install upfront with npm
         npm install
         npm run build
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.CITOKEN_SECRET }}
+        submodules: true
+    - name: Lint
+      run: |
+        npm add --global wasm-pack # wasm-pack-plugin tries to install this with npm if not present, but npm needs root to install globally, so instead we install upfront with npm
+        npm install
+        npm run lint
