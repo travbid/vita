@@ -25,7 +25,6 @@ jobs:
         rustup --version
         node --version
         npm --version
-        npm add --global wasm-pack # wasm-pack-plugin tries to install this with npm if not present, but npm needs root to install globally, so instead we install upfront with npm
         npm install
         npm run build
 
